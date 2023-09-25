@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="main">#9304a9</color>
+    <color name="transparent_main">#809304a9</color>
     <color name="secondary">#FAF4FB</color>
     <color name="accent">#270381</color>
     <color name="ferieBackground">#037DBA</color>

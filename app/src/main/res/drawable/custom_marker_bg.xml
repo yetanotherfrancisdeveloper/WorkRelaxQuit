@@ -4,9 +4,9 @@
     android:shape="rectangle">
 
     <!-- Customize the background color -->
-    <solid android:color="@color/main" />
+    <solid android:color="@color/transparent_main" />
 
     <!-- Customize the corner radius (optional) -->
-    <corners android:radius="8dp" />
+    <corners android:radius="4dp" />
 
 </shape>

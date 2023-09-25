@@ -3,10 +3,8 @@ package com.francisdeveloper.workrelaxquit.ui.charts
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.R as androidR
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,25 +13,25 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.francisdeveloper.workrelaxquit.R
+import com.francisdeveloper.workrelaxquit.databinding.FragmentChartBinding
+import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IFillFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import com.francisdeveloper.workrelaxquit.R
-import com.francisdeveloper.workrelaxquit.databinding.FragmentChartBinding
-import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
-import com.francisdeveloper.workrelaxquit.ui.gestore.getCurrentDate
-import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.utils.MPPointF
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import android.R as androidR
 
 
 class ChartFragment : Fragment() {
@@ -112,6 +110,7 @@ class ChartFragment : Fragment() {
                     permessi = 0.0F
                     val calendar = Calendar.getInstance()
                     calendar.set(Calendar.DAY_OF_MONTH, 1) // Set the day to the 1st day of the month
+                    calendar.set(Calendar.HOUR_OF_DAY, 6)
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                     startTimestamp = (SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateFormat.format(calendar.time).toString())?.time ?: 0L).toFloat()
                 }
@@ -179,31 +178,10 @@ class ChartFragment : Fragment() {
                 lineChart = view.findViewById(R.id.lineChart)
                 lineChart.isHighlightPerDragEnabled = true
 
-                /*val markerView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_marker_view_layout, null)
-                val markerTextViewX = markerView.findViewById<TextView>(R.id.textViewXValue)
-                val markerTextViewY = markerView.findViewById<TextView>(R.id.textViewYValue)
-                lineChart.marker = CustomMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-                lineChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-                    @SuppressLint("SetTextI18n")
-                    override fun onValueSelected(e: Entry?, h: Highlight?) {
-                        Log.d("ChartIssue", "e: $e")
-                        if (e != null) {
-                            val xValue = e.x
-                            val yValue = e.y
-
-                            // Display the values in the custom marker view
-                            markerTextViewX.text = "Data: $xValue"
-                            markerTextViewY.text = "Ore: $yValue"
-
-                            // Refresh the marker
-                            lineChart.marker = CustomMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-                        }
-                    }
-
-                    override fun onNothingSelected() {
-                        // Handle the case where nothing is selected
-                    }
-                })*/
+                // Adding marker view
+                val mv = YourMarkerView(requireContext(), R.layout.custom_marker_view_layout)
+                // set the marker to the chart
+                lineChart.markerView = mv
 
                 // Initialize and configure the LineChart here
                 // You can set labels, axis, and other chart properties
@@ -217,6 +195,7 @@ class ChartFragment : Fragment() {
                 lineChart.setDrawBorders(true)
 
                 val xAxis = lineChart.xAxis
+
                 xAxis.valueFormatter = object : ValueFormatter() {
                     private val dateFormat = SimpleDateFormat("MMM dd", Locale.US) // Adjust date format as needed
 
@@ -226,6 +205,21 @@ class ChartFragment : Fragment() {
                         return dateFormat.format(date)
                     }
                 }
+
+                // Calculate the interval between the first and last date in milliseconds
+                val firstDateMillis = realEntries.minByOrNull { it.x }?.x?.toLong() ?: 0L
+                val lastDateMillis = realEntries.maxByOrNull { it.x }?.x?.toLong() ?: 0L
+                val intervalMillis = lastDateMillis - firstDateMillis
+                // Define a padding factor (percentage) for the left and right sides
+                val paddingFactor = 0.12 // 12% padding on both sides, adjust as needed
+                // Calculate the padding amount based on the interval
+                val paddingMillis = intervalMillis * paddingFactor
+                // Calculate axisMinimum and axisMaximum
+                val axisMinMillis = firstDateMillis - paddingMillis
+                val axisMaxMillis = lastDateMillis + paddingMillis
+                xAxis.axisMinimum = axisMinMillis.toFloat()
+                xAxis.axisMaximum = axisMaxMillis.toFloat()
+
                 xAxis.setDrawAxisLine(true)
                 xAxis.setDrawGridLines(true)
                 // xAxis.textColor = Color.rgb(255, 192, 56)
@@ -293,13 +287,20 @@ class ChartFragment : Fragment() {
 
         var ferie: Float
         var permessi: Float
+        val startTimestamp: Float
         if (firstRowData != null) {
             // Access the data from the first row
             ferie = firstRowData.ferie.toFloat()
             permessi = firstRowData.permessi.toFloat()
+            startTimestamp = (SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(firstRowData.initialDate)?.time ?: 0L).toFloat()
         } else {
             ferie = 0.0F
             permessi = 0.0F
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.DAY_OF_MONTH, 1) // Set the day to the 1st day of the month
+            calendar.set(Calendar.HOUR_OF_DAY, 6)
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            startTimestamp = (SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateFormat.format(calendar.time).toString())?.time ?: 0L).toFloat()
         }
 
         val insertedData = databaseHelper.getDataByType(type)
@@ -307,12 +308,12 @@ class ChartFragment : Fragment() {
 
         val realEntries = mutableListOf<Entry>()
         val dataList = mutableListOf<List<Any>>()
-        val startTimestamp = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse("2023-08-15")?.time ?: 0L
+        // val startTimestamp = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse("2023-08-15")?.time ?: 0L
 
         if (type == "Ferie") {
-            realEntries.add(Entry(startTimestamp.toFloat(), ferie))
+            realEntries.add(Entry(startTimestamp, ferie))
         } else {
-            realEntries.add(Entry(startTimestamp.toFloat(), permessi))
+            realEntries.add(Entry(startTimestamp, permessi))
         }
 
         insertedData?.use {
@@ -367,31 +368,10 @@ class ChartFragment : Fragment() {
         // Set the MarkerView for the LineChart
         lineChart.isHighlightPerDragEnabled = true
 
-        /*val markerView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_marker_view_layout, null)
-        val markerTextViewX = markerView.findViewById<TextView>(R.id.textViewXValue)
-        val markerTextViewY = markerView.findViewById<TextView>(R.id.textViewYValue)
-        lineChart.marker = CustomMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-        lineChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-            @SuppressLint("SetTextI18n")
-            override fun onValueSelected(e: Entry?, h: Highlight?) {
-                Log.d("ChartIssue", "e: $e")
-                if (e != null) {
-                    val xValue = e.x
-                    val yValue = e.y
-
-                    // Display the values in the custom marker view
-                    markerTextViewX.text = "Data: $xValue"
-                    markerTextViewY.text = "Ore: $yValue"
-
-                    // Refresh the marker
-                    lineChart.marker = CustomMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-                }
-            }
-
-            override fun onNothingSelected() {
-                // Handle the case where nothing is selected
-            }
-        })*/
+        // Adding marker view
+        val mv = YourMarkerView(requireContext(), R.layout.custom_marker_view_layout)
+        // set the marker to the chart
+        lineChart.markerView = mv
 
         // Initialize and configure the LineChart here
         // You can set labels, axis, and other chart properties
@@ -414,6 +394,21 @@ class ChartFragment : Fragment() {
                 return dateFormat.format(date)
             }
         }
+
+        // Calculate the interval between the first and last date in milliseconds
+        val firstDateMillis = realEntries.minByOrNull { it.x }?.x?.toLong() ?: 0L
+        val lastDateMillis = realEntries.maxByOrNull { it.x }?.x?.toLong() ?: 0L
+        val intervalMillis = lastDateMillis - firstDateMillis
+        // Define a padding factor (percentage) for the left and right sides
+        val paddingFactor = 0.12 // 12% padding on both sides, adjust as needed
+        // Calculate the padding amount based on the interval
+        val paddingMillis = intervalMillis * paddingFactor
+        // Calculate axisMinimum and axisMaximum
+        val axisMinMillis = firstDateMillis - paddingMillis
+        val axisMaxMillis = lastDateMillis + paddingMillis
+        xAxis.axisMinimum = axisMinMillis.toFloat()
+        xAxis.axisMaximum = axisMaxMillis.toFloat()
+
         xAxis.setDrawAxisLine(true)
         xAxis.setDrawGridLines(true)
         // xAxis.textColor = Color.rgb(255, 192, 56)
@@ -464,7 +459,34 @@ class ChartFragment : Fragment() {
     }
 
     @SuppressLint("ViewConstructor")
-    class CustomMarkerView(context: Context, layoutResource: Int) : MarkerView(context, layoutResource) {
-        // Custom marker view logic, if needed
+    class YourMarkerView(context: Context?, layoutResource: Int) : MarkerView(context,
+        layoutResource
+    ) {
+        private var dateValue: TextView? = findViewById(R.id.textViewXValue)
+        private var hourValue: TextView? = findViewById(R.id.textViewYValue)
+
+        // callbacks everytime the MarkerView is redrawn, can be used to update the
+        // content (user-interface)
+        override fun refreshContent(e: Entry, highlight: Highlight) {
+            val dateFormat = SimpleDateFormat("MMM dd", Locale.US)
+            val date = Date(e.x.toLong())
+            // Add one day to the date
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day
+            dateValue!!.text = "Data: " + dateFormat.format(calendar.time)
+            hourValue!!.text = "Ore: " + e.y
+            // this will perform necessary layouting
+            super.refreshContent(e, highlight)
+        }
+
+        private var mOffset: MPPointF? = null
+        override fun getOffset(): MPPointF {
+            if (mOffset == null) {
+                // center the marker horizontally and vertically
+                mOffset = MPPointF(-(width / 2).toFloat(), -height.toFloat())
+            }
+            return mOffset as MPPointF
+        }
     }
 }
