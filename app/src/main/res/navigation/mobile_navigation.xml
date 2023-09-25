@@ -60,7 +60,6 @@
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.francisdeveloper.workrelaxquit.ui.detail.DetailFragment"
-        android:label="@string/menu_detail"
         tools:layout="@layout/fragment_detail">
     </fragment>
 
