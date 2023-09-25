@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.francisdeveloper.workrelaxquit.ui.home.HomeFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/adView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:orientation="vertical"
+            tools:ignore="MissingConstraints">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/page_dati_utente" />
+
+            <TextView
+                android:paddingTop="24dp"
+                android:paddingLeft="6dp"
+                android:id="@+id/ferieLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inserisci le ore di ferie che hai a disposizione:"
+                android:textSize="16sp" />
+
+            <EditText
+                android:paddingTop="8dp"
+                android:id="@+id/ferieHours"
+                android:contentDescription="Ore di ferie a disposizione"
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:paddingTop="24dp"
+                android:paddingLeft="6dp"
+                android:id="@+id/permessiLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inserisci le ore di permesso che hai a disposizione:"
+                android:textSize="16sp" />
+
+            <EditText
+                android:paddingTop="8dp"
+                android:id="@+id/permessiHours"
+                android:contentDescription="Permessi a disposizione"
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Icona di informazioni -->
+                <ImageView
+                    android:id="@+id/firstInfoIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_info"
+                    android:contentDescription="Icona di informazioni" />
+
+                <!-- Testo del label -->
+                <TextView
+                    android:id="@+id/ferieYearLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Inserisci i giorni di ferie che hai in un anno da contratto:"
+                    android:textSize="16sp"
+                    android:paddingStart="8dp" />
+            </LinearLayout>
+
+            <EditText
+                android:paddingTop="8dp"
+                android:id="@+id/ferieYear"
+                android:contentDescription="Giorni di ferie in un anno"
+                android:hint="20"
+                android:inputType="number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Icona di informazioni -->
+                <ImageView
+                    android:id="@+id/secondInfoIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_info"
+                    android:contentDescription="Icona di informazioni" />
+
+                <TextView
+                    android:paddingLeft="6dp"
+                    android:id="@+id/permessiYearLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Inserisci le ore di permesso che hai in un anno da contratto:"
+                    android:textSize="16sp"
+                    android:paddingStart="8dp"/>
+            </LinearLayout>
+
+            <EditText
+                android:paddingTop="8dp"
+                android:id="@+id/permessiYear"
+                android:contentDescription="Ore di permesso in un anno"
+                android:hint="104"
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <Button
+                    android:id="@+id/submitButton"
+                    android:layout_width="115dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/button_selector"
+                    android:backgroundTint="@color/accent"
+                    android:text="SALVA"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="@+id/yearsText"
+                    app:layout_constraintTop_toBottomOf="@+id/yearsText" />
+
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="115dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/button_selector"
+                    android:text="RESET"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="@+id/yearsText"
+                    app:layout_constraintTop_toBottomOf="@+id/submitButton" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/resetText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/submitText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+    </com.google.android.gms.ads.AdView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

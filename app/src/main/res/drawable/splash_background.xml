@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color for the splash screen -->
+    <item android:drawable="@color/accent" />
+    <!-- Logo or image for the splash screen -->
+
+</layer-list>

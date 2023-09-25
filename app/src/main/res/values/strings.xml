@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Work Relax Quit</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Work, Relax, Quit</string>
+    <string name="nav_header_subtitle">Per i lavoratori di domani</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Dati</string>
+    <string name="menu_calcolatore">Prossima Vacanza</string>
+    <string name="menu_tfr">Calcolatore TFR</string>
+    <string name="menu_valore_ferie">Valore Ferie</string>
+    <string name="menu_notice_period">Preavviso</string>
+    <string name="menu_gestore">Gestore</string>
+    <string name="menu_chart">Grafici</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_detail">Cronologia</string>
+    <string name="header_ferie">Ferie</string>
+    <string name="header_permesso">Permesso</string>
+</resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_calcolatore"
+        android:name="com.francisdeveloper.workrelaxquit.ui.calcolatore.CalculatorFragment"
+        android:label="@string/menu_calcolatore"
+        tools:layout="@layout/fragment_calcolatore" />
+
+    <fragment
+        android:id="@+id/nav_tfr"
+        android:name="com.francisdeveloper.workrelaxquit.ui.calcolotfr.FragmentCalcoloTfrBinding"
+        android:label="@string/menu_tfr"
+        tools:layout="@layout/fragment_calcolo_tfr" />
+
+    <fragment
+        android:id="@+id/nav_valore_ferie"
+        android:name="com.francisdeveloper.workrelaxquit.ui.valoreferie.ValoreFerieFragment"
+        android:label="@string/menu_valore_ferie"
+        tools:layout="@layout/fragment_valore_ferie" />
+
+    <fragment
+        android:id="@+id/nav_notice_period"
+        android:name="com.francisdeveloper.workrelaxquit.ui.noticeperiod.NoticeFragment"
+        android:label="@string/menu_notice_period"
+        tools:layout="@layout/fragment_notice" />
+
+    <fragment
+        android:id="@+id/nav_charts"
+        android:name="com.francisdeveloper.workrelaxquit.ui.charts.ChartFragment"
+        android:label="@string/menu_chart"
+        tools:layout="@layout/fragment_chart" />
+
+    <fragment
+        android:id="@+id/nav_gestore"
+        android:name="com.francisdeveloper.workrelaxquit.ui.gestore.GestoreFragment"
+        android:label="@string/menu_gestore"
+        tools:layout="@layout/fragment_gestore" />
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.francisdeveloper.workrelaxquit.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.francisdeveloper.workrelaxquit.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <action
+        android:id="@+id/action_global_settingsFragment"
+        app:destination="@id/nav_settings" />
+
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.francisdeveloper.workrelaxquit.ui.detail.DetailFragment"
+        android:label="@string/menu_detail"
+        tools:layout="@layout/fragment_detail">
+    </fragment>
+
+    <action
+        android:id="@+id/action_gestoreFragment_to_detailFragment"
+        app:destination="@id/detailFragment" />
+</navigation>

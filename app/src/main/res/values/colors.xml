@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main">#9304a9</color>
+    <color name="secondary">#FAF4FB</color>
+    <color name="accent">#270381</color>
+    <color name="ferieBackground">#037DBA</color>
+    <color name="accumulated">#228b22</color>
+
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="pastel_orange">#FFB347</color>
+    <color name="pastel_orange_light">#FBE8DF</color>
+    <color name="popupBackground">#ff333333</color>
+    <color name="color_ferie">#2e8b57</color>
+    <color name="color_permessi">#b0e0e6</color>
+</resources>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "439632611698",
+    "project_id": "calcola-ferie",
+    "storage_bucket": "calcola-ferie.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439632611698:android:de1a2cd27407b9237375eb",
+        "android_client_info": {
+          "package_name": "com.example.calcoloferie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "439632611698-6ejmdp6ut08dkcvuamdo1gtde9cmtmke.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4gO4HfBAspqvaICpl34WU5hh3GCcRBlY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "439632611698-6ejmdp6ut08dkcvuamdo1gtde9cmtmke.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

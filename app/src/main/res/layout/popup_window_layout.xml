@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_gravity="center"
+    android:background="@drawable/popup_window_background">
+
+    <TextView
+        android:id="@+id/popupText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data inserted successfully!"
+        android:textColor="@color/secondary"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/popupCloseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:layout_gravity="end" />
+</LinearLayout>

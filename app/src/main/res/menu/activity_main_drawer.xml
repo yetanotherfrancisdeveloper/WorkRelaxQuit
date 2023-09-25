@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_account_data"
+            android:title="@string/menu_home" />
+        <item
+            android:id="@+id/nav_calcolatore"
+            android:icon="@drawable/ic_menu_calculator"
+            android:title="@string/menu_calcolatore" />
+        <item
+            android:id="@+id/nav_tfr"
+            android:icon="@drawable/ic_euro"
+            android:title="@string/menu_tfr" />
+        <item
+            android:id="@+id/nav_valore_ferie"
+            android:icon="@drawable/ic_piggy_bank"
+            android:title="@string/menu_valore_ferie" />
+        <item
+            android:id="@+id/nav_notice_period"
+            android:icon="@drawable/ic_notice"
+            android:title="@string/menu_notice_period" />
+        <item
+            android:id="@+id/nav_gestore"
+            android:icon="@drawable/ic_dataset"
+            android:title="@string/menu_gestore" />
+
+        <item
+            android:id="@+id/nav_charts"
+            android:icon="@drawable/ic_chart"
+            android:title="@string/menu_chart" />
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="@string/menu_settings" />
+    </group>
+</menu>

@@ -1,0 +1,17 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Other preferences -->
+    <SwitchPreferenceCompat
+        android:key="dark_mode_switch"
+        android:title="Dark Mode"
+        android:summary="Attiva Dark Mode"
+        android:icon="@drawable/ic_dark_mode"
+        android:defaultValue="true" />
+
+    <Preference
+        android:key="download_data"
+        android:title="Esporta"
+        android:summary="Clicca per esportare i tuoi dati in csv"
+        android:icon="@drawable/ic_download"
+        android:iconSpaceReserved="false" />
+</PreferenceScreen>
