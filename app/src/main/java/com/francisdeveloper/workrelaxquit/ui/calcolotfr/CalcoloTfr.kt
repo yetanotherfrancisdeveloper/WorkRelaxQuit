@@ -77,14 +77,15 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
 
             if (tfrPreviousYears > 0.0) {
                 expandedText.text = "- TFR lordo: \u20AC$tfrGross\n" +
-                                    "- Coefficiente di rivalutazione: $TFRAppreciationCoefficient\n" +
+                                    "- Coefficiente di rivalutazione: $TFRAppreciationCoefficient%\n" +
                                     "- TFR rivalutato: \u20AC$tfrAppreciated\n" +
                                     "- Tasse: \u20AC$tfrTax\n" +
                                     "- TFR - tasse: \u20AC$tfrWoTaxes\n"
             } else {
                 expandedText.text = "- TFR lordo: \u20AC$tfrGross\n" +
                                     "- Tasse: \u20AC$tfrTax\n" +
-                                    "- TFR - tasse: \u20AC$tfrWoTaxes\n"
+                                    "- TFR - tasse: \u20AC$tfrWoTaxes\n\n" +
+                                    "Il coefficiente di rivalutazione viene applicato solo ai redditi percepiti negli anni precedenti."
             }
 
             collapsibleCardView.setOnClickListener {
@@ -308,6 +309,7 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
         val daysWorked = mutableListOf<Double>()
         var workedMonths = 0
         var lastDate = ""
+        var notSubtracted = true
         for (entry in salaryEntries) {
             val salary = entry.salaryEditText.text.toString().toDoubleOrNull() ?: 0.0
             val startDate = entry.startDateEditText.text.toString()
@@ -361,7 +363,14 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
                 monthsIndex += 1
             }
 
-            var tfrQuota = tfr - (salary * 0.005) // + thirteenQuotas
+            var tfrQuota: Double
+            if (notSubtracted) {
+                tfrQuota = tfr - (salary * 0.005)
+                notSubtracted = false
+            } else {
+                tfrQuota = tfr
+            }
+            // var tfrQuota = tfr - (salary * 0.005) // + thirteenQuotas
             if (tfrQuota < 0.0) {
                 tfrQuota += (salary * 0.005)
             }
@@ -401,12 +410,6 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
             val netAppreciationValueOnTotal = appreciationValueOnTotal - (appreciationValueOnTotal * 0.17)
             refTFR += netAppreciationValue
             totalTFR += netAppreciationValueOnTotal
-            Log.d("TFRIssue", "netAppreciationValue: $netAppreciationValueOnTotal")
-            Log.d("TFRIssue", "workedMonths.toDouble(): ${workedMonths.toDouble()}")
-            Log.d("TFRIssue", "appreciationCoefficient: $appreciationCoefficient")
-            Log.d("TFRIssue", "lastDate: $lastDate")
-            Log.d("TFRIssue", "parseDate: ${(parsedLastDate.month + 1).toDouble()}")
-            Log.d("TFRIssue", "TFR Last Year: ${totalTFR * (((workedMonths.toDouble() - (parsedLastDate.month + 1).toDouble())) / workedMonths.toDouble())}")
         }
 
         val tfrIRPEFTax = calculateIRPEFTax(refTFR)

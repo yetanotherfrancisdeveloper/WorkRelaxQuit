@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -82,6 +83,15 @@ class DetailFragment : Fragment() {
 
         // Load saved data from the database and update the adapter
         val (dataList, monthHeaders, groupedData) = loadDataFromDatabase()
+        Log.d("DetailFeat", "dataList: $dataList")
+        if (dataList.isEmpty()) {
+            binding.simpleCardView.visibility = View.VISIBLE
+            if (type == "Ferie") {
+                binding.missingValuesText.text = "Non hai ancora inserito o maturato ferie!"
+            } else {
+                binding.missingValuesText.text = "Non hai ancora inserito o maturato permessi!"
+            }
+        }
         val uniqueMonthHeaders = getUniqueMonths(groupedData)
         detailDataAdapter.setData(dataList, uniqueMonthHeaders, groupedData)
     }
