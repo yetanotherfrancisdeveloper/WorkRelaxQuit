@@ -207,4 +207,38 @@ class CalculatorFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        val number1EditText = binding.ferie
+        setupDecimalSeparatorConversion(number1EditText)
+        // Get first row of InitialData
+        val firstRowData = databaseHelper.getFirstRow()
+        // Get all used hours of ferie
+        val sumUsedFerie = databaseHelper.getSumOfColumnValues("Ferie")
+        // Get ferie hours accumulated
+        val ferieAccumulated = databaseHelper.getSumOfAccumulatedFerie()
+
+        val df = DecimalFormat("#.##")
+
+        if (firstRowData != null) {
+            val df = DecimalFormat("#.##")
+            // Access the data from the first row
+            val ferie = firstRowData.ferie
+            val permessi = firstRowData.permessi
+            val giorniFerie = firstRowData.giorniFerie
+            number1EditText.setText(df.format(ferie))
+
+            availableFerie = ferie - sumUsedFerie + ferieAccumulated
+            ferieMonthly = ((giorniFerie * 8) / 12).toDouble()
+            number1EditText.setText(df.format(availableFerie).toString())
+        } else {
+            ferieMonthly = 13.33
+        }
+
+        if (availableFerie != 0.0) {
+            number1EditText.setText(df.format(availableFerie).toString())
+        }
+    }
 }

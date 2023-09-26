@@ -230,4 +230,29 @@ class ValoreFerieFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        // Get first row of InitialData
+        val firstRowData = databaseHelper.getFirstRow()
+        // Get all used hours of ferie
+        val sumUsedFerie = databaseHelper.getSumOfColumnValues("Ferie")
+        // Get ferie hours accumulated
+        val ferieAccumulated = databaseHelper.getSumOfAccumulatedFerie()
+        val ferieHours = binding.hoursText
+        setupDecimalSeparatorConversion(ferieHours)
+
+        val df = DecimalFormat("#.##")
+        if (firstRowData != null) {
+            // Access the data from the first row
+            val ferie = firstRowData.ferie
+            availableFerie = ferie - sumUsedFerie + ferieAccumulated
+            ferieHours.setText(df.format(availableFerie).toString())
+        }
+
+        if (availableFerie != 0.0) {
+            ferieHours.setText(df.format(availableFerie).toString())
+        }
+    }
 }
