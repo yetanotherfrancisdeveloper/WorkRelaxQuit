@@ -187,9 +187,9 @@ class CalculatorFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Detect if the user's input uses a different decimal separator
                 val userInput = editText.text.toString()
-                if (userInput.contains(userDecimalSeparator)) {
+                if (userInput.contains(',')) {
                     // Replace the user's decimal separator with a dot
-                    val convertedInput = userInput.replace(userDecimalSeparator, '.')
+                    val convertedInput = userInput.replace(',', '.')
                     // Update the EditText with the converted input
                     editText.setText(convertedInput)
                     // Set the cursor position to the end
