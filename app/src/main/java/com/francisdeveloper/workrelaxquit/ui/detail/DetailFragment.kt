@@ -5,7 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -22,8 +23,10 @@ import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.databinding.FragmentDetailBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DataModel
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
+import com.francisdeveloper.workrelaxquit.ui.home.AccDataModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.android.material.snackbar.Snackbar
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -83,7 +86,6 @@ class DetailFragment : Fragment() {
 
         // Load saved data from the database and update the adapter
         val (dataList, monthHeaders, groupedData) = loadDataFromDatabase()
-        Log.d("DetailFeat", "dataList: $dataList")
         if (dataList.isEmpty()) {
             binding.simpleCardView.visibility = View.VISIBLE
             if (type == "Ferie") {
@@ -201,6 +203,10 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
     private var itemList: List<Any> = emptyList() // Use Any type for a mixed list of data and headers
     private lateinit var monthList: List<String>
     private var dataList: List<DataModel> = emptyList()
+    // For undoing to deletion
+    private var recentlyDeletedItem: DataModel? = null
+    private var recentlyDeletedItemAcc: AccDataModel? = null
+    private var recentlyDeletedItemPosition: Int = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -356,6 +362,65 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
         notifyDataSetChanged()
     }
 
+    fun undoDelete() {
+        val databaseHelper = DatabaseHelper(context)
+        if (recentlyDeletedItem != null && recentlyDeletedItemPosition != -1) {
+            // Add back the item in the database
+            val insertedId = databaseHelper.insertData(recentlyDeletedItem!!.date, recentlyDeletedItem!!.value, recentlyDeletedItem!!.type)
+
+            // Restore the item to its original position
+            val updatedDataList = itemList.toMutableList()
+            updatedDataList.add(recentlyDeletedItemPosition, recentlyDeletedItem!!)
+            itemList = updatedDataList
+            notifyItemInserted(recentlyDeletedItemPosition)
+            notifyDataSetChanged()
+
+            // Reset the recently deleted item
+            recentlyDeletedItem = null
+            recentlyDeletedItemPosition = -1
+        }
+    }
+
+    fun undoDeleteAcc() {
+        val databaseHelper = DatabaseHelper(context)
+        if (recentlyDeletedItemAcc != null && recentlyDeletedItemPosition != -1) {
+
+            // Add back the item in the database
+            val insertedId = databaseHelper.insertAccData(recentlyDeletedItemAcc!!.accFerie, recentlyDeletedItemAcc!!.accPermessi, recentlyDeletedItemAcc!!.date)
+
+            // Restore the item to its original position
+            val updatedDataList = itemList.toMutableList()
+            updatedDataList.add(recentlyDeletedItemPosition, recentlyDeletedItem!!)
+            itemList = updatedDataList
+            notifyItemInserted(recentlyDeletedItemPosition)
+            notifyDataSetChanged()
+
+            // Reset the recently deleted item
+            recentlyDeletedItem = null
+            recentlyDeletedItemPosition = -1
+        }
+    }
+
+    fun getRecentlyDeletedItem(): DataModel? {
+        return recentlyDeletedItem
+    }
+
+    fun setRecentlyDeletedItem(newRecentlyDeletedItem: DataModel) {
+        recentlyDeletedItem = newRecentlyDeletedItem
+    }
+
+    fun setRecentlyDeletedAccItem(newRecentlyDeletedAccItem: AccDataModel) {
+        recentlyDeletedItemAcc = newRecentlyDeletedAccItem
+    }
+
+    fun getRecentlyDeletedItemPosition(): Int {
+        return recentlyDeletedItemPosition
+    }
+
+    fun setRecentlyDeletedItemPosition(newRecentlyDeletedItemPosition: Int) {
+        recentlyDeletedItemPosition = newRecentlyDeletedItemPosition
+    }
+
     inner class MonthHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val monthHeaderTextView: TextView = itemView.findViewById(R.id.monthHeaderTextView)
 
@@ -499,20 +564,60 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
         val deletedData = adapter.getDataAtPosition(position)
+        // You can access recentlyDeletedItem and recentlyDeletedItemPosition here
+        adapter.setRecentlyDeletedItem(adapter.getDataAtPosition(position))
+        adapter.setRecentlyDeletedItemPosition(position)
 
         // Delete the data from the database using the id
         val databaseHelper = DatabaseHelper(context)
+        //databaseHelper.insertAccData(13.33, 8.67, "2023-09-01")
+        // Insert to test
         val deletedId = databaseHelper.deleteData(deletedData.id)
-        databaseHelper.deleteAccData(deletedData.id)
+        val accData = databaseHelper.getAccDataById(deletedData.id)
+        val accDeletedId = databaseHelper.deleteAccData(deletedData.id)
         databaseHelper.close()
 
         // Check if the deletion was successful
-        if (deletedId != -1) {
+        if (deletedId != -1 || accDeletedId != -1) {
             // Remove the item from the local data list
+            if (accDeletedId != 0) {
+                adapter.setRecentlyDeletedAccItem(accData!!)
+            }
             adapter.deleteItem(position)
         } else {
             // If deletion failed, you might want to show a message or handle the error
             Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
         }
+
+        // Show a Snackbar with an Undo action
+        val resources = context.resources
+        // Retrieve a color by its resource ID
+        val primaryColor = resources.getColor(R.color.main)
+        val accentColor = resources.getColor(R.color.accent)
+        val secondaryColor = resources.getColor(R.color.secondary)
+        val snackbar = Snackbar.make(
+            viewHolder.itemView,
+            "Dato eliminato",
+            Snackbar.LENGTH_LONG
+        )
+        snackbar.setBackgroundTint(accentColor)
+        snackbar.setTextColor(secondaryColor)
+        snackbar.setActionTextColor(Color.YELLOW)
+        // Set the anchor view for the Snackbar to appear above the ad
+        val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+        params.anchorId = R.id.adView
+        params.anchorGravity = Gravity.TOP
+        params.gravity = Gravity.TOP
+        snackbar.view.layoutParams = params
+
+        snackbar.setAction("Annulla") {
+            if (deletedId > 0) {
+                adapter.undoDelete()
+            } else {
+                adapter.undoDeleteAcc()
+            }
+        }
+
+        snackbar.show()
     }
 }

@@ -1,5 +1,6 @@
 package com.francisdeveloper.workrelaxquit.ui.gestore
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -184,9 +185,30 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun deleteAccData(id: Int): Int {
         val db = this.writableDatabase
-        val whereClause = "$COL_ID = ?"
+        val whereClause = "$THIRD_COL_ID = ?"
         val whereArgs = arrayOf(id.toString())
         return db.delete(THIRD_TABLE_NAME, whereClause, whereArgs)
+    }
+
+    fun getAccDataById(id: Int): AccDataModel? {
+        val db = readableDatabase
+        var accDataModel: AccDataModel? = null
+
+        val cursor = db.rawQuery("SELECT * FROM $THIRD_TABLE_NAME WHERE $THIRD_COL_ID = ?", arrayOf(id.toString()))
+
+        if (cursor.moveToFirst()) {
+            val accId = cursor.getInt(cursor.getColumnIndex(THIRD_COL_ID))
+            val accFerie = cursor.getDouble(cursor.getColumnIndex(COL_ACC_FERIE))
+            val accPermessi = cursor.getDouble(cursor.getColumnIndex(COL_ACC_PERMESSI))
+            val date = cursor.getString(cursor.getColumnIndex(COL_ACC_DATE))
+
+            accDataModel = AccDataModel(accFerie, accPermessi, date, accId)
+        }
+
+        cursor.close()
+        db.close()
+
+        return accDataModel
     }
 
     fun getFirstRow(): DataModel? {
