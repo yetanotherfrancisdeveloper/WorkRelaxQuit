@@ -98,7 +98,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Schedule notifications switch case
-        val scheduleNotificationSwitch: SwitchPreferenceCompat? = findPreference("schedule_notification")
+        /*val scheduleNotificationSwitch: SwitchPreferenceCompat? = findPreference("schedule_notification")
         scheduleNotificationSwitch?.setOnPreferenceChangeListener { preference: Preference, newValue: Any ->
             // Check for the SCHEDULE_EXACT_ALARM permission
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -121,7 +121,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             Log.d("Schedule", "newValue: $newValue")
             Log.d("Schedule", "previousValue: $previousValue")
             newValue == previousValue
-        }
+        }*/
 
         val downloadPreference: Preference? = findPreference("download_data")
 
