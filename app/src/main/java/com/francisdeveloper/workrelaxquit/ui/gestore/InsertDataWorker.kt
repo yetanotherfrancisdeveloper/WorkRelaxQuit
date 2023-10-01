@@ -3,7 +3,6 @@ package com.francisdeveloper.workrelaxquit.ui.gestore
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -31,7 +30,6 @@ class InsertDataWorker(context: Context, params: WorkerParameters) :
         // Check if data for the current month already exists in the table
         val databaseHelper = DatabaseHelper(applicationContext)
         val existingData = databaseHelper.getDataForMonth(currentMonth)
-        Log.d("NotificationIssue", "existingData: $existingData")
         if (existingData.isEmpty()) {
             // Get first row of InitialData
             val firstRowData = databaseHelper.getFirstRow()

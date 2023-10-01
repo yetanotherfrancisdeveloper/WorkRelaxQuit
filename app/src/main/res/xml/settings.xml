@@ -8,6 +8,20 @@
         android:icon="@drawable/ic_dark_mode"
         android:defaultValue="true" />
 
+    <SwitchPreferenceCompat
+        android:key="send_notification"
+        android:title="Notifiche"
+        android:summary="Attiva l'invio delle notifiche.\nNecessaria anche l'autorizzazione per la programmazione"
+        android:icon="@drawable/ic_preference_notification"
+        android:defaultValue="false" />
+
+    <SwitchPreferenceCompat
+        android:key="schedule_notification"
+        android:title="Programmazione delle notifiche"
+        android:summary="Attiva la programmazione delle notifiche.\nNecessaria anche l'autorizzazione per l'invio"
+        android:icon="@drawable/ic_preference_schedule"
+        android:defaultValue="false" />
+
     <Preference
         android:key="download_data"
         android:title="Esporta"

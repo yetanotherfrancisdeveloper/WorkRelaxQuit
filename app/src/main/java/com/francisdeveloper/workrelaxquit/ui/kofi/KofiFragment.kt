@@ -1,19 +1,16 @@
 package com.francisdeveloper.workrelaxquit.ui.kofi
 
-import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.francisdeveloper.workrelaxquit.R
 
 class KofiFragment : Fragment() {
-
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -21,25 +18,23 @@ class KofiFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_kofi, container, false)
 
-        // Find the WebView element in the fragment's layout
-        val webView: WebView = view.findViewById(R.id.webViewKofi)
+        // Find the ImageView by its ID
+        val kofiImageView: ImageView = view.findViewById(R.id.kofiImageView)
 
-        // Enable JavaScript (optional, depends on your Ko-fi page)
-        val webSettings: WebSettings = webView.settings
-        webSettings.javaScriptEnabled = true
-
-        // Load your Ko-fi page in the WebView
-        webView.loadUrl("https://ko-fi.com/yetanotherfrancis")
-
-        // Handle WebView navigation within the WebView itself (e.g., links clicked)
-        webView.webViewClient = object : WebViewClient() {
-            @Deprecated("Deprecated in Java")
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                view?.loadUrl(url!!)
-                return true
-            }
+        // Set an OnClickListener to open the Ko-fi page when the image is clicked
+        kofiImageView.setOnClickListener {
+            openKofiPage()
         }
 
         return view
+    }
+
+    private fun openKofiPage() {
+        // Define your Ko-fi page URL here
+        val kofiUrl = "https://ko-fi.com/yetanotherfrancis"
+
+        // Open the Ko-fi page in a web browser
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(kofiUrl))
+        startActivity(intent)
     }
 }

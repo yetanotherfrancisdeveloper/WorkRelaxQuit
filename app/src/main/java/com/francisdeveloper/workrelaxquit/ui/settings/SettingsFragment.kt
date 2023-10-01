@@ -1,20 +1,31 @@
 package com.francisdeveloper.workrelaxquit.ui.settings
 
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
-import android.content.Context
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.DocumentsContract
+import android.provider.Settings
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.StyleSpan
+import android.util.Log
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.documentfile.provider.DocumentFile
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -23,8 +34,6 @@ import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Objects
-import java.util.jar.Manifest
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -63,6 +72,57 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        // Send notifications switch case
+        val notificationSwitch: SwitchPreferenceCompat? = findPreference("send_notification")
+        notificationSwitch?.setOnPreferenceChangeListener { preference: Preference, newValue: Any ->
+            // Check for the POST_NOTIFICATIONS permission
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val previousValue = sharedPreferences.getBoolean("send_notification", false)
+
+            requestPostNotificationsPermission()
+
+            if (isPostNotificationsPermissionGranted()) {
+                notificationSwitch.isChecked = true
+                if (newValue != previousValue) {
+                    sharedPreferences.edit().putBoolean("send_notification", true).apply()
+                }
+            } else {
+                notificationSwitch.isChecked = false
+                if (newValue != previousValue) {
+                    sharedPreferences.edit().putBoolean("send_notification", false).apply()
+                }
+            }
+
+            // Return false to prevent the preference value from changing if necessary
+            newValue == previousValue
+        }
+
+        // Schedule notifications switch case
+        val scheduleNotificationSwitch: SwitchPreferenceCompat? = findPreference("schedule_notification")
+        scheduleNotificationSwitch?.setOnPreferenceChangeListener { preference: Preference, newValue: Any ->
+            // Check for the SCHEDULE_EXACT_ALARM permission
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val previousValue = sharedPreferences.getBoolean("schedule_notification", false)
+
+            requestScheduledNotificationsPermission()
+            if (isExactAlarmPermissionGranted()) {
+                //scheduleNotificationSwitch.isChecked = true
+                if (newValue != previousValue) {
+                    sharedPreferences.edit().putBoolean("schedule_notification", true).apply()
+                }
+            } else {
+                //scheduleNotificationSwitch.isChecked = false
+                if (newValue != previousValue) {
+                    sharedPreferences.edit().putBoolean("schedule_notification", false).apply()
+                }
+            }
+
+            // Return false to prevent the preference value from changing if necessary
+            Log.d("Schedule", "newValue: $newValue")
+            Log.d("Schedule", "previousValue: $previousValue")
+            newValue == previousValue
+        }
+
         val downloadPreference: Preference? = findPreference("download_data")
 
         downloadPreference?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -74,6 +134,126 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 requestPermissionOld()
             }
             true
+        }
+    }
+
+    private fun isExactAlarmPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            "android.permission.SCHEDULE_EXACT_ALARM"
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isPostNotificationsPermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+        } else {
+            // On older versions, there's no need to check this permission
+            true
+        }
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private fun requestScheduledNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_notification_dialog_settings, null)
+
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create()
+
+            val enableButton = dialogView.findViewById<Button>(R.id.enableButton)
+            val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+            val notificationText = dialogView.findViewById<TextView>(R.id.messageTextView)
+            val text = "Modificare il consenso a Work Relax Quit di programmare le notifiche?"
+            // Create a SpannableStringBuilder to apply styles
+            val builder = SpannableStringBuilder(text)
+            // Define the start and end positions of the text to be styled
+            val startIndex = text.indexOf("Work Relax Quit")
+            val endIndex = startIndex + "Work Relax Quit".length
+            // Apply a bold style to the specified text range
+            builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            // Set the styled text in your TextView
+            notificationText.text = builder
+
+            enableButton.setOnClickListener {
+                // Redirect the user to the system notification settings using deep linking
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                val packageName = requireContext().packageName
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handle the case where the settings activity is not found
+                    /*Toast.makeText(
+                        this,
+                        "Impossibile aprire le impostazioni delle notifiche.",
+                        Toast.LENGTH_SHORT
+                    ).show()*/
+                }
+                dialog.dismiss()
+            }
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        } else {
+            // Do nothing for older versions where this permission is not required
+        }
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private fun requestPostNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_notification_dialog_settings, null)
+
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create()
+
+            val enableButton = dialogView.findViewById<Button>(R.id.enableButton)
+            val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+            val notificationText = dialogView.findViewById<TextView>(R.id.messageTextView)
+            val text = "Modificare il consenso a Work Relax Quit di inviare notifiche?"
+            // Create a SpannableStringBuilder to apply styles
+            val builder = SpannableStringBuilder(text)
+            // Define the start and end positions of the text to be styled
+            val startIndex = text.indexOf("Work Relax Quit")
+            val endIndex = startIndex + "Work Relax Quit".length
+            // Apply a bold style to the specified text range
+            builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            // Set the styled text in your TextView
+            notificationText.text = builder
+
+            enableButton.setOnClickListener {
+                // Redirect the user to the system notification settings using deep linking
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val packageName = requireContext().packageName
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handle the case where the settings activity is not found
+                    /*Toast.makeText(
+                        this,
+                        "Impossibile aprire le impostazioni delle notifiche.",
+                        Toast.LENGTH_SHORT
+                    ).show()*/
+                }
+                dialog.dismiss()
+            }
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        } else {
+            // Do nothing for older versions where this permission is not required
         }
     }
 

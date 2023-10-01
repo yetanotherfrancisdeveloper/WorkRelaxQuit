@@ -13,7 +13,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         // Check if this is the first app launch
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch", true)
+        val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch_splash", true)
 
         if (isFirstLaunch) {
             // If it's the first launch, show the splash screen for a few seconds
@@ -36,6 +36,7 @@ class WelcomeActivity : AppCompatActivity() {
             }*/
 
             // If not the first launch, directly navigate to the main activity
+            sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()

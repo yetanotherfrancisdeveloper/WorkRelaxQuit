@@ -137,9 +137,6 @@ class MainActivity : AppCompatActivity() {
         // Schedule the initial CSV download work
         scheduleInitialCsvDownloadWork()
 
-        // Mark the first launch as done
-        sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
-
         // Schedule the periodic CSV download work
         schedulePeriodicCsvDownloadWork()
 
@@ -187,20 +184,44 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        // Check if this is the first launch of the app
+        sharedPreferences.edit().putBoolean("is_first_launch_splash", false).apply()
+        val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch", true)
+
         // Request the SCHEDULE_EXACT_ALARM permission if not granted
-        if (!isExactAlarmPermissionGranted()) {
+        if (!isExactAlarmPermissionGranted() && isFirstLaunch) {
             requestScheduledNotificationsPermission()
+            scheduleMonthlyWorker()
+            if (isExactAlarmPermissionGranted()) {
+                sharedPreferences.edit().putBoolean("schedule_notification", true).apply()
+            } else {
+                sharedPreferences.edit().putBoolean("schedule_notification", false).apply()
+            }
         } else {
             // Permission is granted, schedule alarms
+            if (isExactAlarmPermissionGranted()) {
+                sharedPreferences.edit().putBoolean("schedule_notification", true).apply()
+                scheduleWeeklyWorker()
+            } else {
+                sharedPreferences.edit().putBoolean("schedule_notification", false).apply()
+            }
             scheduleMonthlyWorker()
-            scheduleWeeklyWorker()
         }
 
         // Check for the POST_NOTIFICATIONS permission
-        if (!isPostNotificationsPermissionGranted()) {
+        if (!isPostNotificationsPermissionGranted() && isFirstLaunch) {
             requestPostNotificationsPermission()
+            if (isPostNotificationsPermissionGranted()) {
+                sharedPreferences.edit().putBoolean("send_notification", true).apply()
+            } else {
+                sharedPreferences.edit().putBoolean("send_notification", false).apply()
+            }
         } else {
-            // Permission is granted, proceed with your logic
+            if (isPostNotificationsPermissionGranted()) {
+                sharedPreferences.edit().putBoolean("send_notification", true).apply()
+            } else {
+                sharedPreferences.edit().putBoolean("send_notification", false).apply()
+            }
         }
     }
 
@@ -209,7 +230,6 @@ class MainActivity : AppCompatActivity() {
         val workerIntent = Intent(this, MonthlyWorkerReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(this, 0, workerIntent,
             PendingIntent.FLAG_IMMUTABLE)
-        Log.d("Schedule", "Scheduled after granting")
 
         // Calculate the time to schedule the worker at 12:00 AM on the first day of the next month
         val calendar = Calendar.getInstance()
@@ -369,51 +389,6 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             // Do nothing for older versions where this permission is not required
-        }
-    }
-
-    // Request the SCHEDULE_EXACT_ALARM permission
-    private fun requestExactAlarmPermission() {
-        val permissionLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    Toast.makeText(
-                        this,
-                        "Autorizzazione concessa per la programmazione delle notifiche!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    // Permission granted, schedule alarms
-                    scheduleMonthlyWorker()
-                    scheduleWeeklyWorker()
-                } else {
-                    // Notify the user that the permission is missing
-                    Toast.makeText(
-                        this,
-                        "Autorizzazione negata per la programmazione delle notifiche.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-        } else {
-            /*Toast.makeText(
-                this,
-                "L'autorizzazione non è necessaria per programmare le notifiche su questa versione di Android.",
-                Toast.LENGTH_SHORT
-            ).show()*/
-            return
-        }
-
-        try {
-            permissionLauncher.launch(intent as Intent?)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(
-                this,
-                "Il dispositivo non supporta la richiesta di autorizzazione per la programmazione delle notifiche.",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 

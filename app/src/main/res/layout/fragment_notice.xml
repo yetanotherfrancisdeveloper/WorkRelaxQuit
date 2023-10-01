@@ -31,6 +31,20 @@
 
             <TextView
                 android:paddingTop="24dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="24dp"
+                android:id="@+id/explanationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inserisci la data in cui hai dato le dimissioni e scopri quando potrai scap ... ehm lasciare il lavoro."
+                android:textAlignment="center"
+                android:textStyle="italic"
+                android:layout_gravity="center_horizontal"
+                android:textSize="18sp" />
+
+            <TextView
+                android:paddingTop="24dp"
                 android:paddingLeft="6dp"
                 android:id="@+id/noticeDay"
                 android:layout_width="match_parent"

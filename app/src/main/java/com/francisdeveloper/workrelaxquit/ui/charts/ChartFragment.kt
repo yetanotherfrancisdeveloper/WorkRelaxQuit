@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -122,9 +123,9 @@ class ChartFragment : Fragment() {
                 val dataList = mutableListOf<List<Any>>()
 
                 if (type == "Ferie") {
-                    realEntries.add(Entry(startTimestamp, ferie))
+                    realEntries.add(Entry(startTimestamp, String.format("%.2f", ferie).toFloat()))
                 } else {
-                    realEntries.add(Entry(startTimestamp, permessi))
+                    realEntries.add(Entry(startTimestamp, String.format("%.2f", permessi).toFloat()))
                 }
 
                 insertedData?.use {
@@ -160,7 +161,16 @@ class ChartFragment : Fragment() {
                             valueToInsert = permessi - list[1] as Float
                             permessi -= list[1] as Float
                         }
-                        realEntries.add(Entry(list[0] as Float, valueToInsert))
+                        val timestamp = list[0] as Float
+                        val longTimestamp = timestamp.toLong()
+                        // Create a Date object from the Long timestamp
+                        val date = Date(longTimestamp)
+                        // Add a day (24 hours) to the Date object
+                        val oneDayInMillis: Long = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+                        val modifiedDate = Date(date.time + oneDayInMillis)
+                        // Convert the modified Date back to a timestamp (if needed)
+                        val modifiedTimestamp = modifiedDate.time.toFloat()
+                        realEntries.add(Entry(modifiedTimestamp, String.format("%.2f", valueToInsert).toFloat()))
                     } else {
                         var valueToInsert: Float
                         if (type == "Ferie") {
@@ -170,7 +180,7 @@ class ChartFragment : Fragment() {
                             valueToInsert = permessi + list[1] as Float
                             permessi += list[1] as Float
                         }
-                        realEntries.add(Entry(list[0] as Float, valueToInsert))
+                        realEntries.add(Entry(list[0] as Float, String.format("%.2f", valueToInsert).toFloat()))
                     }
                 }
 
@@ -311,9 +321,9 @@ class ChartFragment : Fragment() {
         // val startTimestamp = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse("2023-08-15")?.time ?: 0L
 
         if (type == "Ferie") {
-            realEntries.add(Entry(startTimestamp, ferie))
+            realEntries.add(Entry(startTimestamp, String.format("%.2f", ferie).toFloat()))
         } else {
-            realEntries.add(Entry(startTimestamp, permessi))
+            realEntries.add(Entry(startTimestamp, String.format("%.2f", permessi).toFloat()))
         }
 
         insertedData?.use {
@@ -349,7 +359,16 @@ class ChartFragment : Fragment() {
                     valueToInsert = permessi - list[1] as Float
                     permessi -= list[1] as Float
                 }
-                realEntries.add(Entry(list[0] as Float, valueToInsert))
+                val timestamp = list[0] as Float
+                val longTimestamp = timestamp.toLong()
+                // Create a Date object from the Long timestamp
+                val date = Date(longTimestamp)
+                // Add a day (24 hours) to the Date object
+                val oneDayInMillis: Long = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+                val modifiedDate = Date(date.time + oneDayInMillis)
+                // Convert the modified Date back to a timestamp (if needed)
+                val modifiedTimestamp = modifiedDate.time.toFloat()
+                realEntries.add(Entry(modifiedTimestamp, String.format("%.2f", valueToInsert).toFloat()))
             } else {
                 var valueToInsert: Float
                 if (type == "Ferie") {
@@ -359,7 +378,7 @@ class ChartFragment : Fragment() {
                     valueToInsert = permessi - list[1] as Float
                     permessi -= list[1] as Float
                 }
-                realEntries.add(Entry(list[0] as Float, valueToInsert))
+                realEntries.add(Entry(list[0] as Float, String.format("%.2f", valueToInsert).toFloat()))
             }
         }
 
@@ -473,7 +492,7 @@ class ChartFragment : Fragment() {
             // Add one day to the date
             val calendar = Calendar.getInstance()
             calendar.time = date
-            calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day
+            calendar.add(Calendar.DAY_OF_MONTH, 0) // Add one day
             dateValue!!.text = "Data: " + dateFormat.format(calendar.time)
             hourValue!!.text = "Ore: " + e.y
             // this will perform necessary layouting

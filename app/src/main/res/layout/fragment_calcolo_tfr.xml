@@ -6,6 +6,40 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/page_tfr" />
+
+    <TextView
+        android:paddingTop="24dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="0dp"
+        android:id="@+id/explanationText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Inserisci le RAL che hai percepito nel tuo tempo presso l'impresa per cui lavori così per sapere quanto vale il tuo TFR."
+        android:textAlignment="center"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:textSize="18sp" />
+
+    <TextView
+        android:paddingTop="6dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="24dp"
+        android:id="@+id/explanationExplainingTheText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nota che questa è solo una stima, ma spero sia sufficientemente precisa."
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:textSize="16sp" />
+
     <Button
         android:id="@+id/addSalaryButton"
         android:layout_width="match_parent"

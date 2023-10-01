@@ -13,4 +13,22 @@
         android:padding="16dp"
         android:layout_gravity="center"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/notificationSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notifiche"
+        android:padding="16dp"
+        android:layout_gravity="center"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/scheduleNotificationSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Programmazione notifiche"
+        android:padding="16dp"
+        android:layout_gravity="center"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 </LinearLayout>
