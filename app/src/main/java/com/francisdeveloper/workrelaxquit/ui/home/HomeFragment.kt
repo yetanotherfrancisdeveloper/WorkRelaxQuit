@@ -1,34 +1,48 @@
 package com.francisdeveloper.workrelaxquit.ui.home
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
+//import com.google.android.gms.ads.AdRequest
+//import com.google.android.gms.ads.MobileAds
 import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.databinding.FragmentHomeBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
-import com.francisdeveloper.workrelaxquit.ui.gestore.getCurrentDate
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 class HomeFragment : Fragment() {
 
@@ -37,6 +51,15 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var popupWindow: PopupWindow
     private lateinit var databaseHelper: DatabaseHelper
+    private lateinit var lastPay: TextInputEditText
+    private lateinit var secondToLastPay: TextInputEditText
+    private lateinit var usedValue: TextInputEditText
+    private lateinit var computeValueButton: Button
+    // Declare a property to keep track of the alpha value
+    var currentAlpha = 0
+    // Declare a ValueAnimator
+    lateinit var alphaAnimator: ValueAnimator
+
 
     private lateinit var dataList: MutableList<DataModel>
 
@@ -49,7 +72,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint("UseCompatLoadingForDrawables", "InflateParams")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -71,9 +94,9 @@ class HomeFragment : Fragment() {
         binding.ferieYear.addTextChangedListener(textWatcher)
         binding.permessiYear.addTextChangedListener(textWatcher)
 
-        val adView = binding.adView
+        /*val adView = binding.adView
         MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())
+        adView.loadAd(AdRequest.Builder().build())*/
 
         val infoIcon = binding.firstInfoIcon
         infoIcon.setOnClickListener {
@@ -83,6 +106,161 @@ class HomeFragment : Fragment() {
         val secondInfoIcon = binding.secondInfoIcon
         secondInfoIcon.setOnClickListener {
             showSecondInfoDialog()
+        }
+
+        // Set a new foreground drawable
+        val constraintLayout = binding.root
+        val menu = constraintLayout.getViewById(R.id.mainmenu)
+
+        alphaAnimator = ValueAnimator.ofInt(0, 150).apply {
+            duration = 250 // Adjust the duration as needed
+            addUpdateListener { valueAnimator ->
+                currentAlpha = valueAnimator.animatedValue as Int
+                menu.foreground.alpha = currentAlpha
+            }
+        }
+        menu.foreground.alpha = 0
+
+        binding.iconImageView.setOnClickListener {
+            // Access the ConstraintLayout in your layout
+            if (!alphaAnimator.isRunning) {
+                alphaAnimator.start()
+            }
+            //menu.foreground.alpha = 160
+            // Inflate the popup layout
+            val inflater = layoutInflater
+            // val ferieDialog = Dialog(requireContext())
+            // ferieDialog.setContentView(R.layout.initial_data_popup_layout)
+            val popupView = inflater.inflate(R.layout.initial_data_popup_layout, null)
+
+            // Create the popup window
+            val width = resources.displayMetrics.widthPixels - 80
+            val height = LinearLayout.LayoutParams.WRAP_CONTENT
+            val focusable = true // If true, the popup will receive touch events
+            val popupWindow = PopupWindow(popupView, width, height, focusable)
+            popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            // Show the popup window
+            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0)
+
+            // Header title
+            val headerTitleText = popupView.findViewById<TextView>(R.id.header)
+            headerTitleText.text = "GIORNI DI FERIE ALL'ANNO"
+            val currentDate = Calendar.getInstance()
+            val currentMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
+            val previousMonth = getItalianMonthName(currentDate.get(Calendar.MONTH) - 1)
+            // Find EditText and Button views in the popup layout
+            val lastPayHint = popupView.findViewById<TextInputLayout>(R.id.lastPay)
+            lastPayHint.hint = "Ferie da busta paga di $currentMonth"
+            val secondToLastPayHint = popupView.findViewById<TextInputLayout>(R.id.secondToLastPay)
+            secondToLastPayHint.hint = "Ferie da busta paga di $previousMonth"
+            val usedHint = popupView.findViewById<TextInputLayout>(R.id.used)
+            if (currentMonth == "agosto" || currentMonth == "aprile") {
+                usedHint.hint = "Giorni di ferie usati ad $currentMonth"
+            } else {
+                usedHint.hint = "Giorni di ferie usati a $currentMonth"
+            }
+
+            // Values
+            lastPay = popupView.findViewById(R.id.lastPayValue)
+            secondToLastPay = popupView.findViewById(R.id.secondToLastPayValue)
+            usedValue = popupView.findViewById(R.id.usedValue)
+
+            computeValueButton = popupView.findViewById(R.id.computeValueButton)
+            // Set initial button state based on input validation
+            computeValueButton.isEnabled = isInputValidInsertFerie()
+            // Text watchers
+            lastPay.addTextChangedListener(textWatcherInsertFerie)
+            secondToLastPay.addTextChangedListener(textWatcherInsertFerie)
+            usedValue.addTextChangedListener(textWatcherInsertFerie)
+
+            // Handle Calculate button click
+            computeValueButton.setOnClickListener {
+                // Retrieve user inputs from EditText fields
+
+                val annualFerie = (lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + (usedValue.text.toString().toDouble() * 8)) * 12 / 8
+                Log.d("ComputeValue", "annualFerie: ${lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + (usedValue.text.toString().toDouble() * 8)}")
+                binding.ferieYear.setText(abs(ceil(annualFerie).toInt()).toString())
+                // Dismiss the popup
+                popupWindow.dismiss()
+            }
+
+            // Add an OnDismissListener to the popupWindow
+            popupWindow.setOnDismissListener {
+                // Remove the dimming effect when the popup is dismissed
+                //menu.foreground.alpha = 0
+                alphaAnimator.reverse()
+            }
+        }
+
+        binding.iconImageViewPermessi.setOnClickListener {
+            if (!alphaAnimator.isRunning) {
+                alphaAnimator.start()
+            }
+            // Access the ConstraintLayout in your layout
+            // Inflate the popup layout
+            val inflater = layoutInflater
+            // val ferieDialog = Dialog(requireContext())
+            // ferieDialog.setContentView(R.layout.initial_data_popup_layout)
+            val popupView = inflater.inflate(R.layout.initial_data_popup_layout, null)
+
+            // Create the popup window
+            val width = resources.displayMetrics.widthPixels - 80
+            val height = LinearLayout.LayoutParams.WRAP_CONTENT
+            val focusable = true // If true, the popup will receive touch events
+            val popupWindow = PopupWindow(popupView, width, height, focusable)
+            popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            // Show the popup window
+            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0)
+
+            // Header title
+            val headerTitleText = popupView.findViewById<TextView>(R.id.header)
+            headerTitleText.text = "ORE DI PERMESSO ALL'ANNO"
+            val currentDate = Calendar.getInstance()
+            val currentMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
+            val previousMonth = getItalianMonthName(currentDate.get(Calendar.MONTH) - 1)
+            // Find EditText and Button views in the popup layout
+            val lastPayHint = popupView.findViewById<TextInputLayout>(R.id.lastPay)
+            lastPayHint.hint = "Permessi da busta paga di $currentMonth"
+            val secondToLastPayHint = popupView.findViewById<TextInputLayout>(R.id.secondToLastPay)
+            secondToLastPayHint.hint = "Permessi da busta paga di $previousMonth"
+            val usedHint = popupView.findViewById<TextInputLayout>(R.id.used)
+            if (currentMonth == "agosto" || currentMonth == "aprile") {
+                usedHint.hint = "Ore di permesso usate ad $currentMonth"
+            } else {
+                usedHint.hint = "Ore di permesso usate a $currentMonth"
+            }
+
+            // Values
+            lastPay = popupView.findViewById(R.id.lastPayValue)
+            secondToLastPay = popupView.findViewById(R.id.secondToLastPayValue)
+            usedValue = popupView.findViewById(R.id.usedValue)
+
+            computeValueButton = popupView.findViewById(R.id.computeValueButton)
+            // Set initial button state based on input validation
+            computeValueButton.isEnabled = isInputValidInsertFerie()
+            // Text watchers
+            lastPay.addTextChangedListener(textWatcherInsertFerie)
+            secondToLastPay.addTextChangedListener(textWatcherInsertFerie)
+            usedValue.addTextChangedListener(textWatcherInsertFerie)
+
+            // Handle Calculate button click
+            computeValueButton.setOnClickListener {
+                // Retrieve user inputs from EditText fields
+
+                val annualPermessi = (lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + usedValue.text.toString().toDouble()) * 12
+                Log.d("ComputeValue", "annualPermessi: ${lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + usedValue.text.toString().toDouble()}")
+                binding.permessiYear.setText(abs(ceil(annualPermessi).toInt()).toString())
+                // Dismiss the popup
+                popupWindow.dismiss()
+            }
+
+            // Add an OnDismissListener to the popupWindow
+            popupWindow.setOnDismissListener {
+                // Remove the dimming effect when the popup is dismissed
+                alphaAnimator.reverse()
+            }
         }
 
         // Set initial state of the reset button
@@ -133,16 +311,6 @@ class HomeFragment : Fragment() {
         binding.resetButton.setOnClickListener {
             // Show the confirmation popup when the 'resetButton' is clicked
             showConfirmationPopup()
-
-            // databaseHelper.deleteAllData()
-            // databaseHelper.deleteAllAccumulated()
-            // databaseHelper.deleteInsertedData()
-
-            // Update the reset button state after deleting data
-            // updateResetButtonState()
-
-            // Show the popup window when data is reset
-            // showPopup("I dati sono stati rimossi!")
         }
     }
 
@@ -179,16 +347,48 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun isInputValidInsertFerie(): Boolean {
+        // val yearsText = binding.yearsText.text.toString()
+        val lastPayText = lastPay.text.toString()
+        val secondToLastPayText = secondToLastPay.text.toString()
+        val usedValueText = usedValue.text.toString()
+
+        // Check if any of the fields are empty
+        return !(lastPayText.isBlank() || secondToLastPayText.isBlank() || usedValueText.isBlank())
+    }
+
+    private val textWatcherInsertFerie = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            // Not used, leave it empty
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            // Update the button state whenever the text changes
+            // Inflate the popup layout
+            computeValueButton.isEnabled = isInputValidInsertFerie()
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            // Not used, leave it empty
+        }
+    }
+
+    private fun getItalianMonthName(month: Int): String {
+        val monthsInItalian = arrayOf(
+            "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+            "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"
+        )
+        return monthsInItalian[month - 1] // Month values are 1-based in Calendar
+    }
+
     private fun showInfoDialog() {
         // You can show a dialog or a tooltip here with additional information.
         // For example, you can use AlertDialog or PopupWindow.
         val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle("Ferie da contratto")
             .setMessage("I giorni di ferie in un anno dipendono dal contratto e dagli anni di anzianità del dipendente. " +
-                    "Per il contratto metalmeccanico di terzo livello per esempio sono previsti 20 giorni.\n" +
-                    "Puoi calcolare quanti giorni di ferie hai l'anno prendendo le tue ultime due buste paga:\n" +
-                    "(ferie ultima busta paga - ferie penultima busta paga), moltiplica questo risultato per 12 e poi dividi il tutto per 8.\n" +
-                    "Ricorda di prendere le ferie al netto di eventuali altre ferie che hai consumato!")
+                    "Spesso sono previsti 20 giorni ferie l'anno.\n" +
+                    "Puoi calcolare quanti giorni di ferie hai l'anno cliccando sull'icona della calcolatrice che trovi a destra.\n")
             .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
             }
@@ -202,10 +402,8 @@ class HomeFragment : Fragment() {
         // For example, you can use AlertDialog or PopupWindow.
         val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle("Permessi da contratto")
-            .setMessage("Le ore di permesso previste in genere sono 104, ma per sapere il valore con sicurezza puoi prendere " +
-                    "le tue ultime due buste paga e fare il seguente calcolo:\n" +
-                    "(permessi ultima busta paga - permessi penultima busta paga), moltiplica questo risultato per 12 e arrotonda all'intero più vicino.\n" +
-                    "Ricorda di prendere i permessi al netto di eventuali altro permessi che hai consumato!")
+            .setMessage("Le ore di permesso previste molto spesso sono 104, ma per sapere il valore con sicurezza " +
+                    "puoi calcolare quante ore di permesso hai l'anno cliccando sull'icona della calcolatrice che trovi a destra.")
             .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
             }

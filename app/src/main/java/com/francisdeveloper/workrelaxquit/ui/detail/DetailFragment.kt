@@ -24,8 +24,8 @@ import com.francisdeveloper.workrelaxquit.databinding.FragmentDetailBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DataModel
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
 import com.francisdeveloper.workrelaxquit.ui.home.AccDataModel
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
+//import com.google.android.gms.ads.AdRequest
+//import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -67,9 +67,9 @@ class DetailFragment : Fragment() {
             (activity as AppCompatActivity).supportActionBar?.title = "Permessi"
         }
 
-        val adView = binding.adView
+        /*val adView = binding.adView
         MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())
+        adView.loadAd(AdRequest.Builder().build())*/
 
         // Set up database helper
         databaseHelper = DatabaseHelper(requireContext())
@@ -604,11 +604,11 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
         snackbar.setTextColor(secondaryColor)
         snackbar.setActionTextColor(Color.YELLOW)
         // Set the anchor view for the Snackbar to appear above the ad
-        val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+        /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
         params.anchorId = R.id.adView
         params.anchorGravity = Gravity.TOP
         params.gravity = Gravity.TOP
-        snackbar.view.layoutParams = params
+        snackbar.view.layoutParams = params*/
 
         snackbar.setAction("Annulla") {
             if (deletedId > 0) {

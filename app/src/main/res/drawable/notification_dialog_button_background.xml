@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Default state -->
+    <item android:state_enabled="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" /> <!-- Adjust the radius as needed for your desired roundness -->
+            <solid android:color="#D0BDF0" /> <!-- Use your desired purple light color here -->
+        </shape>
+    </item>
+    <!-- Disabled state (optional) -->
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="#D0BDF0" /> <!-- Use a different color for disabled state if needed -->
+        </shape>
+    </item>
+</selector>

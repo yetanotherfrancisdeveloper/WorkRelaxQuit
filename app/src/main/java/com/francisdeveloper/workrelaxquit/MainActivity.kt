@@ -1,22 +1,41 @@
 package com.francisdeveloper.workrelaxquit
 
+//import android.content.ContentValues.TAG
+//import com.google.android.gms.ads.MobileAds
+//import com.google.android.ump.ConsentForm
+//import com.google.android.ump.ConsentInformation.OnConsentInfoUpdateSuccessListener
+//import com.google.android.ump.ConsentRequestParameters
+//import com.google.android.ump.UserMessagingPlatform
+
 import DownloadCsvWorker
+import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.ActivityNotFoundException
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.StyleSpan
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.Menu
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -29,13 +48,8 @@ import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.francisdeveloper.workrelaxquit.databinding.ActivityMainBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.navigation.NavigationView
-import com.google.android.ump.ConsentForm
 import com.google.android.ump.ConsentInformation
-import com.google.android.ump.ConsentInformation.OnConsentInfoUpdateSuccessListener
-import com.google.android.ump.ConsentRequestParameters
-import com.google.android.ump.UserMessagingPlatform
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -62,12 +76,12 @@ class MainActivity : AppCompatActivity() {
 
         // Set tag for under age of consent. false means users are not under age
         // of consent.
-        val params = ConsentRequestParameters
+        /*val params = ConsentRequestParameters
             .Builder()
             .setTagForUnderAgeOfConsent(false)
-            .build()
+            .build()*/
 
-        consentInformation = UserMessagingPlatform.getConsentInformation(this)
+        /*consentInformation = UserMessagingPlatform.getConsentInformation(this)
         consentInformation.requestConsentInfoUpdate(
             this,
             params,
@@ -88,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
                         // Consent has been gathered.
                         if (consentInformation.canRequestAds()) {
-                            initializeMobileAdsSdk()
+                            //initializeMobileAdsSdk()
                         }
                     }
                 )
@@ -99,14 +113,14 @@ class MainActivity : AppCompatActivity() {
                 Log.w(TAG, String.format("%s: %s",
                     requestConsentError.errorCode,
                     requestConsentError.message))
-            })
+            })*/
 
         // Check if you can initialize the Google Mobile Ads SDK in parallel
         // while checking for new consent information. Consent obtained in
         // the previous session can be used to request ads.
-        if (consentInformation.canRequestAds()) {
-            initializeMobileAdsSdk()
-        }
+        //if (consentInformation.canRequestAds()) {
+            //initializeMobileAdsSdk()
+        //}
         // Reset consent
         // consentInformation.reset()
 
@@ -143,6 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
+        navView.itemIconTintList = null
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         // Check if data has been inserted
@@ -166,18 +181,26 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_notice_period,
             R.id.nav_gestore,
             R.id.nav_charts,
-            R.id.nav_settings
+            R.id.nav_settings,
+            R.id.nav_kofi
         ), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         // Request the SCHEDULE_EXACT_ALARM permission if not granted
         if (!isExactAlarmPermissionGranted()) {
-            requestExactAlarmPermission()
+            requestScheduledNotificationsPermission()
         } else {
             // Permission is granted, schedule alarms
             scheduleMonthlyWorker()
             scheduleWeeklyWorker()
+        }
+
+        // Check for the POST_NOTIFICATIONS permission
+        if (!isPostNotificationsPermissionGranted()) {
+            requestPostNotificationsPermission()
+        } else {
+            // Permission is granted, proceed with your logic
         }
     }
 
@@ -186,6 +209,7 @@ class MainActivity : AppCompatActivity() {
         val workerIntent = Intent(this, MonthlyWorkerReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(this, 0, workerIntent,
             PendingIntent.FLAG_IMMUTABLE)
+        Log.d("Schedule", "Scheduled after granting")
 
         // Calculate the time to schedule the worker at 12:00 AM on the first day of the next month
         val calendar = Calendar.getInstance()
@@ -223,7 +247,68 @@ class MainActivity : AppCompatActivity() {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
-    // Check if the SCHEDULE_EXACT_ALARM permission is granted
+    private fun isPostNotificationsPermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManagerCompat.from(this).areNotificationsEnabled()
+        } else {
+            // On older versions, there's no need to check this permission
+            true
+        }
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private fun requestPostNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_notification_dialog, null)
+
+            val dialog = AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+
+            val enableButton = dialogView.findViewById<Button>(R.id.enableButton)
+            val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+            val notificationText = dialogView.findViewById<TextView>(R.id.messageTextView)
+            val text = "Consentire a Work Relax Quit di inviare notifiche?"
+            // Create a SpannableStringBuilder to apply styles
+            val builder = SpannableStringBuilder(text)
+            // Define the start and end positions of the text to be styled
+            val startIndex = text.indexOf("Work Relax Quit")
+            val endIndex = startIndex + "Work Relax Quit".length
+            // Apply a bold style to the specified text range
+            builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            // Set the styled text in your TextView
+            notificationText.text = builder
+
+            enableButton.setOnClickListener {
+                // Redirect the user to the system notification settings using deep linking
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handle the case where the settings activity is not found
+                    Toast.makeText(
+                        this,
+                        "Impossibile aprire le impostazioni delle notifiche.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                dialog.dismiss()
+            }
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        } else {
+            // Do nothing for older versions where this permission is not required
+        }
+    }
+
+
+        // Check if the SCHEDULE_EXACT_ALARM permission is granted
     private fun isExactAlarmPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -231,11 +316,72 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    @SuppressLint("ResourceAsColor")
+    private fun requestScheduledNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_notification_dialog, null)
+
+            val dialog = AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+
+            val enableButton = dialogView.findViewById<Button>(R.id.enableButton)
+            val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+            val notificationText = dialogView.findViewById<TextView>(R.id.messageTextView)
+            val text = "Consentire a Work Relax Quit di programmare le notifiche?"
+            // Create a SpannableStringBuilder to apply styles
+            val builder = SpannableStringBuilder(text)
+            // Define the start and end positions of the text to be styled
+            val startIndex = text.indexOf("Work Relax Quit")
+            val endIndex = startIndex + "Work Relax Quit".length
+            // Apply a bold style to the specified text range
+            builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            // Set the styled text in your TextView
+            notificationText.text = builder
+
+            enableButton.setOnClickListener {
+                // Redirect the user to the system notification settings using deep linking
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handle the case where the settings activity is not found
+                    Toast.makeText(
+                        this,
+                        "Impossibile aprire le impostazioni delle notifiche.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                dialog.dismiss()
+            }
+
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+            if (isExactAlarmPermissionGranted()) {
+                scheduleMonthlyWorker()
+                scheduleWeeklyWorker()
+            }
+        } else {
+            // Do nothing for older versions where this permission is not required
+        }
+    }
+
     // Request the SCHEDULE_EXACT_ALARM permission
     private fun requestExactAlarmPermission() {
         val permissionLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {
+                    Toast.makeText(
+                        this,
+                        "Autorizzazione concessa per la programmazione delle notifiche!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     // Permission granted, schedule alarms
                     scheduleMonthlyWorker()
                     scheduleWeeklyWorker()
@@ -243,7 +389,7 @@ class MainActivity : AppCompatActivity() {
                     // Notify the user that the permission is missing
                     Toast.makeText(
                         this,
-                        "Autorizzazione negata per la programmazione delle notifiche!",
+                        "Autorizzazione negata per la programmazione delle notifiche.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -292,6 +438,12 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_main_drawer, menu)
+        MenuCompat.setGroupDividerEnabled(menu!!, true)
+        return true
+    }
+
     // Function to load a fragment
     private fun loadFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
@@ -311,7 +463,7 @@ class MainActivity : AppCompatActivity() {
         isMobileAdsInitializeCalled.set(true)
 
         // Initialize the Google Mobile Ads SDK.
-        MobileAds.initialize(this)
+        //MobileAds.initialize(this)
     }
 
     private fun getItalianMonthName(month: Int): String {

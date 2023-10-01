@@ -12,8 +12,8 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
+//import com.google.android.gms.ads.AdRequest
+//import com.google.android.gms.ads.MobileAds
 import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.databinding.FragmentValoreFerieBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
@@ -53,9 +53,9 @@ class ValoreFerieFragment : Fragment() {
 
         databaseHelper = DatabaseHelper(requireContext())
 
-        val adView = binding.adView
+        /*val adView = binding.adView
         MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())
+        adView.loadAd(AdRequest.Builder().build())*/
 
         // Get first row of InitialData
         val firstRowData = databaseHelper.getFirstRow()
