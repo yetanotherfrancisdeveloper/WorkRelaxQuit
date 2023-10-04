@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:key="settings_preferences">
     <!-- Other preferences -->
     <SwitchPreferenceCompat
         android:key="dark_mode_switch"
@@ -13,16 +14,16 @@
         android:title="Notifiche"
         android:summary="Attiva l'invio delle notifiche.\nNecessaria anche l'autorizzazione per la programmazione"
         android:icon="@drawable/ic_preference_notification"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:visibility="gone" />
 
-    <!--
     <SwitchPreferenceCompat
         android:key="schedule_notification"
         android:title="Programmazione delle notifiche"
         android:summary="Attiva la programmazione delle notifiche.\nNecessaria anche l'autorizzazione per l'invio"
         android:icon="@drawable/ic_preference_schedule"
-        android:defaultValue="false" />
-    -->
+        android:defaultValue="false"
+        android:visibility="gone" />
 
     <Preference
         android:key="download_data"

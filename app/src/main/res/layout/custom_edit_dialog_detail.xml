@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/popup_window_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cosa vuoi fare?"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:paddingBottom="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/modifyEditButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Modifica"
+            android:textColor="@color/white"
+            android:background="@drawable/notification_dialog_button_background" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="6dp" />
+
+        <Button
+            android:id="@+id/deleteEditButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Elimina"
+            android:textColor="@color/white"
+            android:background="@drawable/notification_dialog_button_background" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="6dp" />
+
+        <Button
+            android:id="@+id/cancelEditButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Annulla"
+            android:textColor="@color/white"
+            android:background="@drawable/notification_dialog_button_background" />
+    </LinearLayout>
+</LinearLayout>

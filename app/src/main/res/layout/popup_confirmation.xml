@@ -62,7 +62,7 @@
 
         <Button
             android:id="@+id/proceedButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ELIMINA"
             android:layout_weight="1"
@@ -72,7 +72,7 @@
 
         <Button
             android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:text="MEGLIO DI NO"

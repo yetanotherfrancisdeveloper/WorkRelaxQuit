@@ -38,6 +38,7 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.floor
 
 class HomeFragment : Fragment() {
 
@@ -174,7 +175,6 @@ class HomeFragment : Fragment() {
                 // Retrieve user inputs from EditText fields
 
                 val annualFerie = (lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + (usedValue.text.toString().toDouble() * 8)) * 12 / 8
-                Log.d("ComputeValue", "annualFerie: ${lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + (usedValue.text.toString().toDouble() * 8)}")
                 binding.ferieYear.setText(abs(ceil(annualFerie).toInt()).toString())
                 // Dismiss the popup
                 popupWindow.dismiss()
@@ -245,8 +245,7 @@ class HomeFragment : Fragment() {
                 // Retrieve user inputs from EditText fields
 
                 val annualPermessi = (lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + usedValue.text.toString().toDouble()) * 12
-                Log.d("ComputeValue", "annualPermessi: ${lastPay.text.toString().toDouble() - secondToLastPay.text.toString().toDouble() + usedValue.text.toString().toDouble()}")
-                binding.permessiYear.setText(abs(ceil(annualPermessi).toInt()).toString())
+                binding.permessiYear.setText(abs(floor(annualPermessi).toInt()).toString())
                 // Dismiss the popup
                 popupWindow.dismiss()
             }

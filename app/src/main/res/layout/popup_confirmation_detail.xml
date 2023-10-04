@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_gravity="center"
+    android:background="@drawable/popup_window_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/ferieYearLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ELIMINAZIONE DATO"
+            android:textColor="@color/crimson"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/confirmationMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sicuro di voler eliminare il dato?\nSe prosegui il dato verrà cancellato permanentemente."
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textColor="@color/secondary"
+        android:textAppearance="?android:textAppearanceMedium"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/proceedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ELIMINA"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="ANNULLA"
+            android:layout_weight="1"
+            android:textAppearance="?android:textAppearanceMedium"
+            app:layout_constraintTop_toBottomOf="@+id/submitButton"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

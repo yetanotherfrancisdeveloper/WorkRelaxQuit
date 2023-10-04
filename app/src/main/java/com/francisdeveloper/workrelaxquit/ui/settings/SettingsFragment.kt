@@ -15,7 +15,6 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
@@ -29,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
@@ -72,6 +72,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        val currentApiVersion = Build.VERSION.SDK_INT
+        val preferenceScreen = findPreference<PreferenceScreen>("settings_preferences")
+        val sendNotificationPreference = findPreference<SwitchPreferenceCompat>("send_notification")
+        val scheduleNotificationPreference = findPreference<SwitchPreferenceCompat>("schedule_notification")
+
+        if (currentApiVersion < Build.VERSION_CODES.O) {
+            // Remove the preference
+            preferenceScreen?.removePreference(findPreference("send_notification")!!)
+            sendNotificationPreference!!.isVisible = false
+        }
+
+        if (currentApiVersion >= Build.VERSION_CODES.O && currentApiVersion < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            sendNotificationPreference!!.summary = "Abilita le notifiche"
+        }
+
+        if (currentApiVersion < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Remove the preference
+            preferenceScreen?.removePreference(findPreference("schedule_notification")!!)
+            scheduleNotificationPreference!!.isVisible = false
+        }
+
         // Send notifications switch case
         val notificationSwitch: SwitchPreferenceCompat? = findPreference("send_notification")
         notificationSwitch?.setOnPreferenceChangeListener { preference: Preference, newValue: Any ->
@@ -98,7 +119,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Schedule notifications switch case
-        /*val scheduleNotificationSwitch: SwitchPreferenceCompat? = findPreference("schedule_notification")
+        val scheduleNotificationSwitch: SwitchPreferenceCompat? = findPreference("schedule_notification")
         scheduleNotificationSwitch?.setOnPreferenceChangeListener { preference: Preference, newValue: Any ->
             // Check for the SCHEDULE_EXACT_ALARM permission
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -118,10 +139,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
 
             // Return false to prevent the preference value from changing if necessary
-            Log.d("Schedule", "newValue: $newValue")
-            Log.d("Schedule", "previousValue: $previousValue")
             newValue == previousValue
-        }*/
+        }
 
         val downloadPreference: Preference? = findPreference("download_data")
 

@@ -390,7 +390,7 @@ class GestoreFragment : Fragment(), DataAdapter.DataUpdateListener, DatePickerDi
     }
 }
 
-data class DataModel(val date: String, val value: Double, val type: String, var id: Int = 0)
+data class DataModel(var date: String, var value: Double, val type: String, var id: Int = 0)
 
 fun getCurrentDate(): String {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

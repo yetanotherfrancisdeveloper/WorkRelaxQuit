@@ -15,19 +15,19 @@ import java.util.*
 class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
 
     override fun doWork(): Result {
-        Log.d("DownloadCsvWorker", "Starting worker execution")
+        //Log.d("DownloadCsvWorker", "Starting worker execution")
         val downloadUrl = inputData.getString(KEY_DOWNLOAD_URL)
         val year = inputData.getInt(KEY_YEAR, -1)
         val month = inputData.getString(KEY_MONTH)
 
         if (downloadUrl.isNullOrEmpty() || year == -1 || month.isNullOrEmpty()) {
-            Log.e("DownloadCsvWorker", "Invalid input data")
+            //Log.e("DownloadCsvWorker", "Invalid input data")
             return Result.failure()
         }
 
         // Construct the URL with the year and month
         val urlWithYearMonth = "$downloadUrl?meseA=$month&annoA=$year&tav=7"
-        Log.d("DownloadCsvWorker", "URL: $urlWithYearMonth")
+        //Log.d("DownloadCsvWorker", "URL: $urlWithYearMonth")
 
         // Create a filename based on year and month
         val filename = "data_${year}_${month.toString().padStart(2, '0')}.xls"
@@ -53,7 +53,7 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
                         Log.e("DownloadCsvWorker", "Failed to delete existing file: $fileName")
                         return Result.failure()
                     } else {
-                        Log.d("DownloadCsvWorker", "Deleted existing file: $fileName")
+                        //Log.d("DownloadCsvWorker", "Deleted existing file: $fileName")
                     }
                 }
             }
@@ -61,7 +61,7 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
 
         // Check if the file already exists
         if (file.exists()) {
-            Log.d("DownloadCsvWorker", "File already exists: $filename")
+            //Log.d("DownloadCsvWorker", "File already exists: $filename")
             return Result.success()
         }
 
@@ -71,7 +71,7 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
             .url(urlWithYearMonth)
             .build()
 
-        Log.d("DownloadCsvWorker", "Starting download: $filename")
+        //Log.d("DownloadCsvWorker", "Starting download: $filename")
 
         try {
             val response = okHttpClient.newCall(request).execute()
@@ -93,7 +93,7 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
                 }
             }
 
-            Log.d("DownloadCsvWorker", "XLS downloaded successfully")
+            //Log.d("DownloadCsvWorker", "XLS downloaded successfully")
             return Result.success()
         } catch (e: Exception) {
             Log.e("DownloadCsvWorker", "Error during download: ${e.message}", e)

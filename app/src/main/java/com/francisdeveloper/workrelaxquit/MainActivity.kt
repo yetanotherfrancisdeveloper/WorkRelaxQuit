@@ -30,11 +30,11 @@ import android.view.Menu
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -179,7 +179,8 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_gestore,
             R.id.nav_charts,
             R.id.nav_settings,
-            R.id.nav_kofi
+            R.id.nav_kofi,
+            R.id.nav_contact_me
         ), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
@@ -414,7 +415,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.activity_main_drawer, menu)
+        //menuInflater.inflate(R.menu.activity_main_drawer, menu)
         MenuCompat.setGroupDividerEnabled(menu!!, true)
         return true
     }

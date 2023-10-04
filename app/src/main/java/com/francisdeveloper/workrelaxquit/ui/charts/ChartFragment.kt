@@ -162,7 +162,16 @@ class ChartFragment : Fragment() {
                             valueToInsert = permessi - list[1] as Float
                             permessi -= list[1] as Float
                         }
-                        realEntries.add(Entry(list[0] as Float, valueToInsert))
+                        val timestamp = list[0] as Float
+                        val longTimestamp = timestamp.toLong()
+                        // Create a Date object from the Long timestamp
+                        val date = Date(longTimestamp)
+                        // Add a day (24 hours) to the Date object
+                        val oneDayInMillis: Long = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+                        val modifiedDate = Date(date.time + oneDayInMillis)
+                        // Convert the modified Date back to a timestamp (if needed)
+                        val modifiedTimestamp = modifiedDate.time.toFloat()
+                        realEntries.add(Entry(modifiedTimestamp, valueToInsert))
                     } else {
                         var valueToInsert: Float
                         if (type == "Ferie") {
@@ -351,7 +360,7 @@ class ChartFragment : Fragment() {
                     valueToInsert = permessi - list[1] as Float
                     permessi -= list[1] as Float
                 }
-                /*val timestamp = list[0] as Float
+                val timestamp = list[0] as Float
                 val longTimestamp = timestamp.toLong()
                 // Create a Date object from the Long timestamp
                 val date = Date(longTimestamp)
@@ -359,8 +368,8 @@ class ChartFragment : Fragment() {
                 val oneDayInMillis: Long = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
                 val modifiedDate = Date(date.time + oneDayInMillis)
                 // Convert the modified Date back to a timestamp (if needed)
-                val modifiedTimestamp = modifiedDate.time.toFloat()*/
-                realEntries.add(Entry(list[0] as Float, valueToInsert))
+                val modifiedTimestamp = modifiedDate.time.toFloat()
+                realEntries.add(Entry(modifiedTimestamp, valueToInsert))
             } else {
                 var valueToInsert: Float
                 if (type == "Ferie") {

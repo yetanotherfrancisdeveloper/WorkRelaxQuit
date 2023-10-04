@@ -59,6 +59,12 @@
         android:label="@string/menu_kofi"
         tools:layout="@layout/fragment_kofi" />
 
+    <fragment
+        android:id="@+id/nav_contact_me"
+        android:name="com.francisdeveloper.workrelaxquit.ui.contactme.ContactFragment"
+        android:label="@string/menu_contact_me"
+        tools:layout="@layout/fragment_contact" />
+
     <action
         android:id="@+id/action_global_settingsFragment"
         app:destination="@id/nav_settings" />

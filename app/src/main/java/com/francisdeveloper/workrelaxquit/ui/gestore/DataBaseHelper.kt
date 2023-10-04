@@ -56,6 +56,73 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
+    @SuppressLint("Range")
+    fun searchDataItem(date: String, value: Double, type: String): Long {
+        val db = this.writableDatabase
+        var itemId: Long = -1 // Default value if no item is found
+
+        // Define the columns you want to search by
+        val columns = arrayOf(COL_ID)
+
+        // Define the selection criteria
+        val selection = "$COL_DATE = ? AND $COL_VALUE = ? AND $COL_TYPE = ?"
+        val selectionArgs = arrayOf(date, value.toString(), type)
+
+        // Perform the query
+        val cursor = db.query(TABLE_NAME, columns, selection, selectionArgs, null, null, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                // Item found, get its ID
+                itemId = cursor.getLong(cursor.getColumnIndex(COL_ID))
+            }
+            cursor.close()
+        }
+
+        db.close()
+        return itemId
+    }
+
+    fun updateDataItem(itemId: Int, newDate: String, newValue: Double, newType: String): Int {
+        val db = this.writableDatabase
+
+        // Define the new values
+        val values = ContentValues()
+        values.put(COL_DATE, newDate)
+        values.put(COL_VALUE, newValue)
+        values.put(COL_TYPE, newType)
+
+        // Define the update criteria
+        val selection = "$COL_ID = ?"
+        val selectionArgs = arrayOf(itemId.toString())
+
+        // Perform the update
+        val rowsUpdated = db.update(TABLE_NAME, values, selection, selectionArgs)
+
+        db.close()
+        return rowsUpdated
+    }
+
+    fun updateAccDataItem(itemId: Int, newDate: String, newFerie: Double, newPermessi: Double): Int {
+        val db = this.writableDatabase
+
+        // Define the new values
+        val values = ContentValues()
+        values.put(COL_ACC_DATE, newDate)
+        values.put(COL_ACC_FERIE, newFerie)
+        values.put(COL_ACC_PERMESSI, newPermessi)
+
+        // Define the update criteria
+        val selection = "$COL_ID = ?"
+        val selectionArgs = arrayOf(itemId.toString())
+
+        // Perform the update
+        val rowsUpdated = db.update(THIRD_TABLE_NAME, values, selection, selectionArgs)
+
+        db.close()
+        return rowsUpdated
+    }
+
     fun insertData(date: String, value: Double, type: String): Long {
         val db = this.writableDatabase
         val contentValues = ContentValues().apply {

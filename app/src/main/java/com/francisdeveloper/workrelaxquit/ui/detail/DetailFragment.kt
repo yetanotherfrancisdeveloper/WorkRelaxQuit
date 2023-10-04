@@ -1,19 +1,21 @@
 package com.francisdeveloper.workrelaxquit.ui.detail
 
+import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,6 +29,7 @@ import com.francisdeveloper.workrelaxquit.ui.home.AccDataModel
 //import com.google.android.gms.ads.AdRequest
 //import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
+import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -362,6 +365,14 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
         notifyDataSetChanged()
     }
 
+    fun changeItem(position: Int, dataItem: DataModel) {
+        val updatedDataList = itemList.toMutableList()
+        updatedDataList[position] = dataItem
+        itemList = updatedDataList
+        notifyItemChanged(position)
+        notifyDataSetChanged()
+    }
+
     fun undoDelete() {
         val databaseHelper = DatabaseHelper(context)
         if (recentlyDeletedItem != null && recentlyDeletedItemPosition != -1) {
@@ -460,13 +471,24 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
         private val dateTextView: TextView = itemView.findViewById(R.id.detailDate)
         private val valueTextView: TextView = itemView.findViewById(R.id.detailValue)
 
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val dataItem = getDataAtPosition(position) // Retrieve the data item at the clicked position
+                    showEditDataDialog(dataItem) // Show the edit/delete dialog for the clicked data item
+                }
+            }
+        }
+
         fun bind(data: DataModel) {
             // Bind the data to the views
             dateTextView.text = convertDateFormat(data.date)
+            val df = DecimalFormat("#.##")
             if (data.type == "accFerie" || data.type == "accPermesso") {
-                valueTextView.text = "+ ${data.value}"
+                valueTextView.text = "+ ${df.format(data.value)}"
             } else {
-                valueTextView.text = "${data.value}"
+                valueTextView.text = "${df.format(data.value)}"
             }
 
             // Change the background color based on the data type
@@ -525,6 +547,256 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
                 return "Invalid Date" // Return an error message or default value
             }
         }
+
+        private fun reverseDateFormat(inputDate: String): String {
+            // Check if the inputDate has the format "yyyy-MM" or "yyyy-MM-dd"
+            val inputFormat = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+            val inputFormatWithDay = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            try {
+                val date: Date?
+
+                if (inputDate.length == "yyyy-MM".length) {
+                    // If inputDate is in "yyyy-MM" format, append "-01" to represent the first day of the month
+                    date = inputFormat.parse(inputDate + "-01")
+                } else {
+                    // If inputDate is in "yyyy-MM-dd" format, parse it directly
+                    date = inputFormatWithDay.parse(inputDate)
+                }
+
+                if (date != null) {
+                    // If the date parsing is successful, convert and return it in the desired format
+                    return outputFormat.format(date)
+                } else {
+                    // Handle the case where parsing fails
+                    return "Invalid Date" // You can choose to return some default value or handle the error as needed
+                }
+            } catch (e: ParseException) {
+                // Handle the parsing exception
+                e.printStackTrace()
+                return "Invalid Date" // Return an error message or default value
+            }
+        }
+
+        private fun showEditDataDialog(dataItem: DataModel?) {
+            val position = adapterPosition
+            val toModifyData = getDataAtPosition(position)
+            val editDialogView = LayoutInflater.from(context).inflate(R.layout.custom_edit_dialog_detail, null)
+            val databaseHelper = DatabaseHelper(context)
+            val dialogBuilder = AlertDialog.Builder(context)
+                .setView(editDialogView)
+                .create()
+
+            val modifyEditButton = editDialogView.findViewById<Button>(R.id.modifyEditButton)
+            val deleteEditButton = editDialogView.findViewById<Button>(R.id.deleteEditButton)
+            val cancelEditButton = editDialogView.findViewById<Button>(R.id.cancelEditButton)
+            //databaseHelper.insertAccData(13.33, 8.67, "2023-09-01")
+
+            //dialogBuilder.setView(dialogView)
+            //dialogBuilder.setTitle("Modifica o elimina")
+            //dialogBuilder.setMessage("Cosa vuoi fare con questo dato?")
+            modifyEditButton.setOnClickListener {
+                // Create a dialog or activity to edit or delete the dataItem
+                val dialogView = LayoutInflater.from(context).inflate(R.layout.edit_data_dialog, null)
+                val editDialog = android.app.AlertDialog.Builder(context)
+                    .setView(dialogView)
+                    .create()
+                val enableButton = dialogView.findViewById<Button>(R.id.modifyButton)
+                val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+                val editDateEditText = dialogView.findViewById<EditText>(R.id.modifyDateValue)
+                val editValueEditText = dialogView.findViewById<EditText>(R.id.modifyValueNumber)
+
+                // Set the current dataItem values in the dialog
+                editDateEditText.setText(convertDateFormat(toModifyData.date))
+                editValueEditText.setText(toModifyData.value.toString())
+
+                // Set an OnClickListener on the editDateEditText to show the DatePickerDialog
+                editDateEditText.setOnClickListener {
+                    showDatePickerDialog(editDateEditText)
+                }
+
+                // Get the edited values from the dialog
+                val newDate = editDateEditText.text.toString()
+                val newValue = editValueEditText.text.toString().toDoubleOrNull()
+
+                enableButton.setOnClickListener {
+                    if (editDateEditText.text.toString().isNotBlank() && editValueEditText.text.toString().isNotBlank()) {
+                        if (toModifyData.type == "Ferie" || toModifyData.type == "Permesso") {
+                            val rowsUpdated = databaseHelper.updateDataItem(toModifyData.id, reverseDateFormat(editDateEditText.text.toString()), editValueEditText.text.toString().toDouble(), toModifyData.type)
+                            if (rowsUpdated > 0) {
+                                // Update the dataItem with the edited values
+                                toModifyData.date = reverseDateFormat(editDateEditText.text.toString())
+                                toModifyData.value = editValueEditText.text.toString().toDoubleOrNull()!!
+                                changeItem(position, toModifyData)
+                            } else {
+                                // Handle the case where the update failed
+                                Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (toModifyData.type == "accFerie") {
+                            val accData = databaseHelper.getAccDataById(toModifyData.id)
+                            val rowsUpdated = databaseHelper.updateAccDataItem(toModifyData.id, reverseDateFormat(editDateEditText.text.toString()), editValueEditText.text.toString().toDouble(), accData!!.accPermessi)
+                            if (rowsUpdated > 0) {
+                                // Update the dataItem with the edited values
+                                toModifyData.date = reverseDateFormat(editDateEditText.text.toString())
+                                toModifyData.value = editValueEditText.text.toString().toDoubleOrNull()!!
+                                changeItem(position, toModifyData)
+                            } else {
+                                // Handle the case where the update failed
+                                Toast.makeText(context, "Modifica fallita", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (toModifyData.type == "accPermesso") {
+                            val accData = databaseHelper.getAccDataById(toModifyData.id)
+                            val rowsUpdated = databaseHelper.updateAccDataItem(toModifyData.id, reverseDateFormat(editDateEditText.text.toString()), accData!!.accFerie, editValueEditText.text.toString().toDouble())
+                            if (rowsUpdated > 0) {
+                                // Update the dataItem with the edited values
+                                toModifyData.date = reverseDateFormat(editDateEditText.text.toString())
+                                toModifyData.value = editValueEditText.text.toString().toDoubleOrNull()!!
+                                changeItem(position, toModifyData)
+                            } else {
+                                // Handle the case where the update failed
+                                Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    editDialog.dismiss()
+                }
+
+                cancelButton.setOnClickListener {
+                    editDialog.dismiss()
+                }
+
+                editDialog.show()
+                dialogBuilder.dismiss()
+            }
+            deleteEditButton.setOnClickListener {
+                showConfirmationPopup(position)
+                dialogBuilder.dismiss()
+            }
+            cancelEditButton.setOnClickListener{
+                // Cancel the dialog
+                dialogBuilder.dismiss()
+            }
+            dialogBuilder.show()
+        }
+
+        private fun showConfirmationPopup(position: Int) {
+            // Inflate the custom layout for the confirmation popup
+            val popupView = LayoutInflater.from(context).inflate(R.layout.popup_confirmation_detail, null)
+
+            // Create the AlertDialog
+            val alertDialog = android.app.AlertDialog.Builder(context)
+                .setView(popupView)
+                .create()
+
+            // Find the buttons in the custom layout
+            val proceedButton = popupView.findViewById<Button>(R.id.proceedButton)
+            val cancelButton = popupView.findViewById<Button>(R.id.cancelButton)
+            cancelButton.text = "ANNULLA"
+
+            // Set a click listener for the "Proceed" button
+            proceedButton.setOnClickListener {
+                deleteWithItem()
+                alertDialog.dismiss()
+            }
+
+            // Set a click listener for the "Cancel" button
+            cancelButton.setOnClickListener {
+                // Close the confirmation popup without deleting data
+                alertDialog.dismiss()
+            }
+
+            // Show the confirmation popup
+            alertDialog.show()
+        }
+
+        // Function to show the date picker dialog
+        private fun showDatePickerDialog(editDateEditText: EditText) {
+            // Get the current date or set a default date
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            // Create a date picker dialog
+            val datePickerDialog = DatePickerDialog(
+                context,
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    // Handle the selected date
+                    val selectedDate = "$selectedDay-${selectedMonth + 1}-$selectedYear" // Month is 0-based
+                    editDateEditText.setText(selectedDate)
+                },
+                year,
+                month,
+                day
+            )
+
+            // Show the date picker dialog
+            datePickerDialog.show()
+        }
+
+        private fun deleteWithItem() {
+            val position = adapterPosition
+            val deletedData = getDataAtPosition(position)
+            // You can access recentlyDeletedItem and recentlyDeletedItemPosition here
+            setRecentlyDeletedItem(getDataAtPosition(position))
+            setRecentlyDeletedItemPosition(position)
+
+            // Delete the data from the database using the id
+            val databaseHelper = DatabaseHelper(context)
+            // Insert to test
+            val deletedId = databaseHelper.deleteData(deletedData.id)
+            val accData = databaseHelper.getAccDataById(deletedData.id)
+            val accDeletedId = databaseHelper.deleteAccData(deletedData.id)
+            databaseHelper.close()
+
+            // Check if the deletion was successful
+            if (deletedId != -1 || accDeletedId != -1) {
+                // Remove the item from the local data list
+                if (accDeletedId != 0) {
+                    setRecentlyDeletedAccItem(accData!!)
+                }
+                deleteItem(position)
+            } else {
+                // If deletion failed, you might want to show a message or handle the error
+                Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
+            }
+
+            // Show a Snackbar with an Undo action
+            val resources = context.resources
+            // Retrieve a color by its resource ID
+            val primaryColor = resources.getColor(R.color.main)
+            val accentColor = resources.getColor(R.color.accent)
+            val secondaryColor = resources.getColor(R.color.secondary)
+            val snackbar = Snackbar.make(
+                itemView,
+                "Dato eliminato",
+                Snackbar.LENGTH_LONG
+            )
+            snackbar.setBackgroundTint(accentColor)
+            snackbar.setTextColor(secondaryColor)
+            snackbar.setActionTextColor(Color.YELLOW)
+            // Set the anchor view for the Snackbar to appear above the ad
+            /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+            params.anchorId = R.id.adView
+            params.anchorGravity = Gravity.TOP
+            params.gravity = Gravity.TOP
+            snackbar.view.layoutParams = params*/
+
+            snackbar.setAction("Annulla") {
+                if (deletedId > 0) {
+                    undoDelete()
+                } else {
+                    undoDeleteAcc()
+                }
+            }
+
+            snackbar.show()
+        }
     }
 }
 
@@ -562,7 +834,8 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        val position = viewHolder.adapterPosition
+        showConfirmationPopup(viewHolder)
+        /*val position = viewHolder.adapterPosition
         val deletedData = adapter.getDataAtPosition(position)
         // You can access recentlyDeletedItem and recentlyDeletedItemPosition here
         adapter.setRecentlyDeletedItem(adapter.getDataAtPosition(position))
@@ -583,7 +856,7 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
             if (accDeletedId != 0) {
                 adapter.setRecentlyDeletedAccItem(accData!!)
             }
-            adapter.deleteItem(position)
+            //adapter.deleteItem(position)
         } else {
             // If deletion failed, you might want to show a message or handle the error
             Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
@@ -618,6 +891,93 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
             }
         }
 
-        snackbar.show()
+        snackbar.show()*/
+    }
+
+    private fun showConfirmationPopup(viewHolder: RecyclerView.ViewHolder) {
+        // Inflate the custom layout for the confirmation popup
+        val popupView = LayoutInflater.from(context).inflate(R.layout.popup_confirmation_detail, null)
+
+        // Create the AlertDialog
+        val alertDialog = android.app.AlertDialog.Builder(context)
+            .setView(popupView)
+            .create()
+
+        // Find the buttons in the custom layout
+        val proceedButton = popupView.findViewById<Button>(R.id.proceedButton)
+        val cancelButton = popupView.findViewById<Button>(R.id.cancelButton)
+        cancelButton.text = "ANNULLA"
+
+        // Set a click listener for the "Proceed" button
+        proceedButton.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            val deletedData = adapter.getDataAtPosition(position)
+            // You can access recentlyDeletedItem and recentlyDeletedItemPosition here
+            adapter.setRecentlyDeletedItem(adapter.getDataAtPosition(position))
+            adapter.setRecentlyDeletedItemPosition(position)
+
+            // Delete the data from the database using the id
+            val databaseHelper = DatabaseHelper(context)
+            // Insert to test
+            val deletedId = databaseHelper.deleteData(deletedData.id)
+            val accData = databaseHelper.getAccDataById(deletedData.id)
+            val accDeletedId = databaseHelper.deleteAccData(deletedData.id)
+            databaseHelper.close()
+
+            // Check if the deletion was successful
+            if (deletedId != -1 || accDeletedId != -1) {
+                // Remove the item from the local data list
+                if (accDeletedId != 0) {
+                    adapter.setRecentlyDeletedAccItem(accData!!)
+                }
+                adapter.deleteItem(position)
+            } else {
+                // If deletion failed, you might want to show a message or handle the error
+                Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
+            }
+
+            // Show a Snackbar with an Undo action
+            val resources = context.resources
+            // Retrieve a color by its resource ID
+            val primaryColor = resources.getColor(R.color.main)
+            val accentColor = resources.getColor(R.color.accent)
+            val secondaryColor = resources.getColor(R.color.secondary)
+            val snackbar = Snackbar.make(
+                viewHolder.itemView,
+                "Dato eliminato",
+                Snackbar.LENGTH_LONG
+            )
+            snackbar.setBackgroundTint(accentColor)
+            snackbar.setTextColor(secondaryColor)
+            snackbar.setActionTextColor(Color.YELLOW)
+            // Set the anchor view for the Snackbar to appear above the ad
+            /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+            params.anchorId = R.id.adView
+            params.anchorGravity = Gravity.TOP
+            params.gravity = Gravity.TOP
+            snackbar.view.layoutParams = params*/
+
+            snackbar.setAction("Annulla") {
+                if (deletedId > 0) {
+                    adapter.undoDelete()
+                } else {
+                    adapter.undoDeleteAcc()
+                }
+            }
+
+            snackbar.show()
+            alertDialog.dismiss()
+        }
+
+        // Set a click listener for the "Cancel" button
+        cancelButton.setOnClickListener {
+            // Close the confirmation popup without deleting data
+            val position = viewHolder.adapterPosition
+            adapter.notifyItemChanged(position)
+            alertDialog.dismiss()
+        }
+
+        // Show the confirmation popup
+        alertDialog.show()
     }
 }
