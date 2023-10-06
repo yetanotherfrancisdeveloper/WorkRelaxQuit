@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,9 +123,9 @@ class ChartFragment : Fragment() {
                 val dataList = mutableListOf<List<Any>>()
 
                 if (type == "Ferie") {
-                    realEntries.add(Entry(startTimestamp, ferie))
+                    realEntries.add(Entry(startTimestamp, ferie, "inserted"))
                 } else {
-                    realEntries.add(Entry(startTimestamp, permessi))
+                    realEntries.add(Entry(startTimestamp, permessi, "inserted"))
                 }
 
                 insertedData?.use {
@@ -322,9 +321,9 @@ class ChartFragment : Fragment() {
         // val startTimestamp = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse("2023-08-15")?.time ?: 0L
 
         if (type == "Ferie") {
-            realEntries.add(Entry(startTimestamp, ferie))
+            realEntries.add(Entry(startTimestamp, ferie, "inserted"))
         } else {
-            realEntries.add(Entry(startTimestamp, permessi))
+            realEntries.add(Entry(startTimestamp, permessi, "inserted"))
         }
 
         insertedData?.use {
@@ -493,6 +492,9 @@ class ChartFragment : Fragment() {
             // Add one day to the date
             val calendar = Calendar.getInstance()
             calendar.time = date
+            if (e.data == "inserted") {
+                calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day
+            }
             //calendar.add(Calendar.DAY_OF_MONTH, 0) // Add one day
             dateValue!!.text = "Data: " + dateFormat.format(calendar.time)
             val df = DecimalFormat("#.##")

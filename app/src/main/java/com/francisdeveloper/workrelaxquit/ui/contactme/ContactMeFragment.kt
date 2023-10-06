@@ -4,11 +4,9 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.francisdeveloper.workrelaxquit.databinding.FragmentContactBinding
 
@@ -37,9 +35,7 @@ class ContactFragment : Fragment() {
 
             // Create an email intent
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:$recipientEmail")
-                putExtra(Intent.EXTRA_SUBJECT, subject)
-                putExtra(Intent.EXTRA_TEXT, body)
+                data = Uri.parse("mailto:$recipientEmail?subject=$subject&body=$body")
             }
 
             // Check if there's an email app available to handle the intent
