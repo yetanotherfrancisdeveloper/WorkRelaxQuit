@@ -458,8 +458,8 @@ class MainActivity : AppCompatActivity() {
         val currentDate = Calendar.getInstance()
         val dayOfMonth = currentDate.get(Calendar.DAY_OF_MONTH)
 
-        if (dayOfMonth >= 15) {
-            // If it's the 15th of the current month, proceed as usual
+        if (dayOfMonth >= 10) {
+            // If it's the 10th of the current month, proceed as usual
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
 
             val inputData = workDataOf(
@@ -479,7 +479,7 @@ class MainActivity : AppCompatActivity() {
                 downloadWorkRequest
             )
         } else {
-            // If it's not the 15th of the current month, set the month to two months before the current one
+            // If it's not the 10th of the current month, set the month to two months before the current one
             currentDate.add(Calendar.MONTH, -1)
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
 
@@ -511,11 +511,11 @@ class MainActivity : AppCompatActivity() {
         val dayOfMonth = currentDate.get(Calendar.DAY_OF_MONTH)
         // Log.d("DownloadCsvWorker", "dayOfMonth: $dayOfMonth")
 
-        if (dayOfMonth >= 15) {
-            // If it's the 15th or later of the current month, proceed as usual
+        if (dayOfMonth >= 10) {
+            // If it's the 10th or later of the current month, proceed as usual
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH) + 1)
 
-            val downloadWorkRequest = PeriodicWorkRequestBuilder<DownloadCsvWorker>(15, TimeUnit.DAYS)
+            val downloadWorkRequest = PeriodicWorkRequestBuilder<DownloadCsvWorker>(10, TimeUnit.DAYS)
                 .setConstraints(constraints)
                 .setInputData(
                     workDataOf(
@@ -532,11 +532,11 @@ class MainActivity : AppCompatActivity() {
                 downloadWorkRequest
             )
         } else {
-            // If it's not the 15th of the current month, set the month to two months before the current one
+            // If it's not the 10th of the current month, set the month to two months before the current one
             currentDate.add(Calendar.MONTH, -1)
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH) + 1)
 
-            val downloadWorkRequest = PeriodicWorkRequestBuilder<DownloadCsvWorker>(15, TimeUnit.DAYS)
+            val downloadWorkRequest = PeriodicWorkRequestBuilder<DownloadCsvWorker>(10, TimeUnit.DAYS)
                 .setConstraints(constraints)
                 .setInputData(
                     workDataOf(

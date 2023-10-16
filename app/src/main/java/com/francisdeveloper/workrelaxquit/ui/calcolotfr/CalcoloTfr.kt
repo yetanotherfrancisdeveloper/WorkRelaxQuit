@@ -281,24 +281,42 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
         var currentInflation = 0.0
         val currentDate = Calendar.getInstance()
         val dayOfMonth = currentDate.get(Calendar.DAY_OF_MONTH)
+        var enteredException = false
 
-        if (dayOfMonth >= 15) {
-            // If it's the 15th or later of the current month, proceed as usual
+        if (dayOfMonth >= 10) {
+            // If it's the 10th or later of the current month, proceed as usual
             year = currentDate.get(Calendar.YEAR)
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
             filename = "data_${year}_${italianMonth}.xls"
             val filePath = "${requireContext().filesDir}/${filename}"
-            currentInflation = getCellValueForYearMonth(filePath, year, currentDate.get(Calendar.MONTH))!!
-            prevYearInflation = getCellValueForYearMonth(filePath, year - 1, 12)!!
+            try {
+                // If the file is not downloaded because ISTAT didn't update it, then use the one from the previous month
+                currentInflation = getCellValueForYearMonth(filePath, year, currentDate.get(Calendar.MONTH))!!
+                prevYearInflation = getCellValueForYearMonth(filePath, year - 1, 12)!!
+            } catch (e: Exception) {
+                enteredException = true
+                currentDate.add(Calendar.MONTH, -1)
+                year = currentDate.get(Calendar.YEAR)
+                val italianMonthException = getItalianMonthName(currentDate.get(Calendar.MONTH))
+                filename = "data_${year}_${italianMonthException}.xls"
+                val filePathException = "${requireContext().filesDir}/${filename}"
+                currentInflation = getCellValueForYearMonth(filePathException, year, currentDate.get(Calendar.MONTH))!!
+                prevYearInflation = getCellValueForYearMonth(filePathException, year - 1, 12)!!
+                Log.e("TFR", "Error opening file: ${e.message}", e)
+            }
         } else {
-            // If it's not the 15th of the current month, set the month to two months before the current one
+            // If it's not the 10th of the current month, set the month to two months before the current one
             currentDate.add(Calendar.MONTH, -1)
             year = currentDate.get(Calendar.YEAR)
             val italianMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
             filename = "data_${year}_${italianMonth}.xls"
             val filePath = "${requireContext().filesDir}/${filename}"
-            currentInflation = getCellValueForYearMonth(filePath, year, currentDate.get(Calendar.MONTH))!!
-            prevYearInflation = getCellValueForYearMonth(filePath, year - 1, 12)!!
+            try {
+                currentInflation = getCellValueForYearMonth(filePath, year, currentDate.get(Calendar.MONTH))!!
+                prevYearInflation = getCellValueForYearMonth(filePath, year - 1, 12)!!
+            } catch (e: Exception) {
+                Log.e("TFR", "Error opening file: ${e.message}", e)
+            }
         }
 
         val file = File(requireContext().filesDir, filename)
@@ -385,9 +403,13 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
         }
 
         // Compute appreciation TFR from previous years
-        val percentVariation = (((currentInflation?.minus(prevYearInflation!!))?.div((prevYearInflation!!)))?.times(0.75)!!)
-        val permVariation = if (dayOfMonth >= 15) {
-            (0.015 * (Calendar.getInstance().get(Calendar.MONTH).toDouble() / 12.0))
+        val percentVariation = (((currentInflation.minus(prevYearInflation)).div((prevYearInflation))).times(0.75))
+        val permVariation = if (dayOfMonth >= 10) {
+            if (enteredException) {
+                (0.015 * ((Calendar.getInstance().get(Calendar.MONTH).toDouble() - 1) / 12.0))
+            } else {
+                (0.015 * (Calendar.getInstance().get(Calendar.MONTH).toDouble() / 12.0))
+            }
         } else {
             (0.015 * ((Calendar.getInstance().get(Calendar.MONTH).toDouble() - 1) / 12.0))
         }

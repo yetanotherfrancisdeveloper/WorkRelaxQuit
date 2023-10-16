@@ -1,11 +1,7 @@
 import android.content.Context
 import android.util.Log
-import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -77,7 +73,56 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
             val response = okHttpClient.newCall(request).execute()
             if (!response.isSuccessful) {
                 Log.e("DownloadCsvWorker", "Network request failed: ${response.code}")
-                return Result.failure()
+                // Download from previous month
+                val currentDate = Calendar.getInstance()
+                currentDate.add(Calendar.MONTH, -1)
+                val prevMonth = getItalianMonthName(currentDate.get(Calendar.MONTH))
+                val updatedYear = currentDate.get(Calendar.YEAR)
+                val newFilename = "data_${updatedYear}_${prevMonth.padStart(2, '0')}.xls"
+                // Create the file object to save the downloaded XLS
+                val newFile = File(internalStorageDir, newFilename)
+
+                // Check if the file already exists
+                if (newFile.exists()) {
+                    Log.d("DownloadCsvWorker", "File already exists: $newFilename")
+                    return Result.success()
+                }
+
+                val newUrlWithYearMonth = "$downloadUrl?meseA=$prevMonth&annoA=$updatedYear&tav=7"
+                // Log.d("TFR", "currentDate: $currentDate")
+                // Log.d("TFR", "newFilename: $newFilename")
+                // Log.d("TFR", "newUrlWithYearMonth: $newUrlWithYearMonth")
+                val newOkHttpClient = OkHttpClient()
+                val newRequest = Request.Builder()
+                    .url(newUrlWithYearMonth)
+                    .build()
+
+                try {
+                    val newResponse = newOkHttpClient.newCall(newRequest).execute()
+                    if (!newResponse.isSuccessful) {
+                        return Result.failure()
+                    }
+
+                    val newResponseBody = newResponse.body
+                    if (newResponseBody == null) {
+                        Log.e("DownloadCsvWorker", "Response body is null")
+                        return Result.failure()
+                    }
+
+                    // Save the downloaded XLS to the file
+                    newResponseBody.byteStream().use { inputStream ->
+                        FileOutputStream(newFile).use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+
+                    Log.d("DownloadCsvWorker", "XLS downloaded successfully")
+                    return Result.success()
+                } catch (e: Exception) {
+                    Log.e("DownloadCsvWorker", "Error during download: ${e.message}", e)
+                    return Result.failure()
+                }
+
             }
 
             val responseBody = response.body
@@ -99,6 +144,14 @@ class DownloadCsvWorker(context: Context, params: WorkerParameters) : Worker(con
             Log.e("DownloadCsvWorker", "Error during download: ${e.message}", e)
             return Result.failure()
         }
+    }
+
+    private fun getItalianMonthName(month: Int): String {
+        val monthsInItalian = arrayOf(
+            "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+            "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
+        )
+        return monthsInItalian[month - 1] // Month values are 1-based in Calendar
     }
 
     companion object {
