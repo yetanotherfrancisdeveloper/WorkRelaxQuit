@@ -6,7 +6,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.app.DatePickerDialog
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -23,8 +22,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.francisdeveloper.workrelaxquit.R
 import com.francisdeveloper.workrelaxquit.databinding.FragmentGestoreBinding
 import com.github.mikephil.charting.charts.LineChart
-//import com.google.android.gms.ads.AdRequest
-//import com.google.android.gms.ads.MobileAds
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,10 +60,6 @@ class GestoreFragment : Fragment(), DataAdapter.DataUpdateListener, DatePickerDi
 
         addButton = binding.addButton
         //chart = binding.chart
-
-        /*val adView = binding.adView
-        MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())*/
 
         // Initialize data list and adapter
         dataList = mutableListOf()

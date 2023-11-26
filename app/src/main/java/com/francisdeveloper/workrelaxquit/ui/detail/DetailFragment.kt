@@ -26,8 +26,6 @@ import com.francisdeveloper.workrelaxquit.databinding.FragmentDetailBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DataModel
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
 import com.francisdeveloper.workrelaxquit.ui.home.AccDataModel
-//import com.google.android.gms.ads.AdRequest
-//import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.text.ParseException
@@ -69,10 +67,6 @@ class DetailFragment : Fragment() {
         } else {
             (activity as AppCompatActivity).supportActionBar?.title = "Permessi"
         }
-
-        /*val adView = binding.adView
-        MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())*/
 
         // Set up database helper
         databaseHelper = DatabaseHelper(requireContext())
@@ -172,7 +166,6 @@ class DetailFragment : Fragment() {
     }
 
     private fun getMonthFromDate(date: String): String {
-        // Assuming date format is "YYYY-MM-DD"
         val parts = date.split("-")
         if (parts.size == 3) {
             val year = parts[0].toInt()
@@ -267,7 +260,7 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
         monthList = newMonthList
 
         val inputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        // Group data by month using a HashMap
+        // Group data by month
         val monthOtherMap = hashMapOf<Date, MutableList<DataModel>>()
         for (item in groupedData) {
             if (item is DataModel) {
@@ -281,7 +274,6 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
         // Create a combined list with month headers and sorted data
         val combinedDataList = mutableListOf<Any>()
-        // val sortedMonths = monthDataMap.keys.sortedDescending()
         for (month in sortedMonths) {
             val outputDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val outputDateStr = outputDateFormat.format(month)
@@ -318,9 +310,6 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
         itemList = combinedDataListFixed
         notifyDataSetChanged()
-
-        //itemList = groupedData
-        //notifyDataSetChanged()
     }
 
     private fun getUniqueMonthYearValues(combinedDataList: List<Any>): Set<String> {
@@ -328,7 +317,6 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
         for (item in combinedDataList) {
             if (item is String && item.matches("[A-Za-z]+ \\d{4}".toRegex())) {
-                // Assuming the format is "Month Year" (e.g., "November 2023")
                 uniqueMonthYearValues.add(item)
             }
         }
@@ -337,7 +325,6 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
     }
 
     private fun getMonthFromDate(date: String): String {
-        // Assuming date format is "YYYY-MM-DD"
         val parts = date.split("-")
         if (parts.size == 3) {
             val year = parts[0].toInt()
@@ -535,16 +522,13 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
                 }
 
                 if (date != null) {
-                    // If the date parsing is successful, convert and return it in the desired format
                     return outputFormat.format(date)
                 } else {
-                    // Handle the case where parsing fails
-                    return "Invalid Date" // You can choose to return some default value or handle the error as needed
+                    return "Invalid Date"
                 }
             } catch (e: ParseException) {
-                // Handle the parsing exception
                 e.printStackTrace()
-                return "Invalid Date" // Return an error message or default value
+                return "Invalid Date"
             }
         }
 
@@ -566,16 +550,13 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
                 }
 
                 if (date != null) {
-                    // If the date parsing is successful, convert and return it in the desired format
                     return outputFormat.format(date)
                 } else {
-                    // Handle the case where parsing fails
-                    return "Invalid Date" // You can choose to return some default value or handle the error as needed
+                    return "Invalid Date"
                 }
             } catch (e: ParseException) {
-                // Handle the parsing exception
                 e.printStackTrace()
-                return "Invalid Date" // Return an error message or default value
+                return "Invalid Date"
             }
         }
 
@@ -591,11 +572,7 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
             val modifyEditButton = editDialogView.findViewById<Button>(R.id.modifyEditButton)
             val deleteEditButton = editDialogView.findViewById<Button>(R.id.deleteEditButton)
             val cancelEditButton = editDialogView.findViewById<Button>(R.id.cancelEditButton)
-            //databaseHelper.insertAccData(13.33, 8.67, "2023-09-01")
 
-            //dialogBuilder.setView(dialogView)
-            //dialogBuilder.setTitle("Modifica o elimina")
-            //dialogBuilder.setMessage("Cosa vuoi fare con questo dato?")
             modifyEditButton.setOnClickListener {
                 // Create a dialog or activity to edit or delete the dataItem
                 val dialogView = LayoutInflater.from(context).inflate(R.layout.edit_data_dialog, null)
@@ -768,7 +745,7 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
             // Show a Snackbar with an Undo action
             val resources = context.resources
-            // Retrieve a color by its resource ID
+            // Retrieve colors
             val primaryColor = resources.getColor(R.color.main)
             val accentColor = resources.getColor(R.color.accent)
             val secondaryColor = resources.getColor(R.color.secondary)
@@ -780,13 +757,6 @@ class DetailDataAdapter(private val context: Context) : RecyclerView.Adapter<Rec
             snackbar.setBackgroundTint(accentColor)
             snackbar.setTextColor(secondaryColor)
             snackbar.setActionTextColor(Color.YELLOW)
-            // Set the anchor view for the Snackbar to appear above the ad
-            /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
-            params.anchorId = R.id.adView
-            params.anchorGravity = Gravity.TOP
-            params.gravity = Gravity.TOP
-            snackbar.view.layoutParams = params*/
-
             snackbar.setAction("Annulla") {
                 if (deletedId > 0) {
                     undoDelete()
@@ -835,63 +805,6 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         showConfirmationPopup(viewHolder)
-        /*val position = viewHolder.adapterPosition
-        val deletedData = adapter.getDataAtPosition(position)
-        // You can access recentlyDeletedItem and recentlyDeletedItemPosition here
-        adapter.setRecentlyDeletedItem(adapter.getDataAtPosition(position))
-        adapter.setRecentlyDeletedItemPosition(position)
-
-        // Delete the data from the database using the id
-        val databaseHelper = DatabaseHelper(context)
-        //databaseHelper.insertAccData(13.33, 8.67, "2023-09-01")
-        // Insert to test
-        val deletedId = databaseHelper.deleteData(deletedData.id)
-        val accData = databaseHelper.getAccDataById(deletedData.id)
-        val accDeletedId = databaseHelper.deleteAccData(deletedData.id)
-        databaseHelper.close()
-
-        // Check if the deletion was successful
-        if (deletedId != -1 || accDeletedId != -1) {
-            // Remove the item from the local data list
-            if (accDeletedId != 0) {
-                adapter.setRecentlyDeletedAccItem(accData!!)
-            }
-            //adapter.deleteItem(position)
-        } else {
-            // If deletion failed, you might want to show a message or handle the error
-            Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
-        }
-
-        // Show a Snackbar with an Undo action
-        val resources = context.resources
-        // Retrieve a color by its resource ID
-        val primaryColor = resources.getColor(R.color.main)
-        val accentColor = resources.getColor(R.color.accent)
-        val secondaryColor = resources.getColor(R.color.secondary)
-        val snackbar = Snackbar.make(
-            viewHolder.itemView,
-            "Dato eliminato",
-            Snackbar.LENGTH_LONG
-        )
-        snackbar.setBackgroundTint(accentColor)
-        snackbar.setTextColor(secondaryColor)
-        snackbar.setActionTextColor(Color.YELLOW)
-        // Set the anchor view for the Snackbar to appear above the ad
-        /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
-        params.anchorId = R.id.adView
-        params.anchorGravity = Gravity.TOP
-        params.gravity = Gravity.TOP
-        snackbar.view.layoutParams = params*/
-
-        snackbar.setAction("Annulla") {
-            if (deletedId > 0) {
-                adapter.undoDelete()
-            } else {
-                adapter.undoDeleteAcc()
-            }
-        }
-
-        snackbar.show()*/
     }
 
     private fun showConfirmationPopup(viewHolder: RecyclerView.ViewHolder) {
@@ -932,13 +845,12 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
                 }
                 adapter.deleteItem(position)
             } else {
-                // If deletion failed, you might want to show a message or handle the error
                 Toast.makeText(context, "Deletion failed", Toast.LENGTH_SHORT).show()
             }
 
             // Show a Snackbar with an Undo action
             val resources = context.resources
-            // Retrieve a color by its resource ID
+            // Retrieve colors
             val primaryColor = resources.getColor(R.color.main)
             val accentColor = resources.getColor(R.color.accent)
             val secondaryColor = resources.getColor(R.color.secondary)
@@ -950,13 +862,6 @@ class SwipeToDeleteCallback(private val context: Context, private val adapter: D
             snackbar.setBackgroundTint(accentColor)
             snackbar.setTextColor(secondaryColor)
             snackbar.setActionTextColor(Color.YELLOW)
-            // Set the anchor view for the Snackbar to appear above the ad
-            /*val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
-            params.anchorId = R.id.adView
-            params.anchorGravity = Gravity.TOP
-            params.gravity = Gravity.TOP
-            snackbar.view.layoutParams = params*/
-
             snackbar.setAction("Annulla") {
                 if (deletedId > 0) {
                     adapter.undoDelete()

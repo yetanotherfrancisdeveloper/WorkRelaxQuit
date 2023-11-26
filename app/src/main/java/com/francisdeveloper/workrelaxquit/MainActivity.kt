@@ -1,12 +1,4 @@
 package com.francisdeveloper.workrelaxquit
-
-//import android.content.ContentValues.TAG
-//import com.google.android.gms.ads.MobileAds
-//import com.google.android.ump.ConsentForm
-//import com.google.android.ump.ConsentInformation.OnConsentInfoUpdateSuccessListener
-//import com.google.android.ump.ConsentRequestParameters
-//import com.google.android.ump.UserMessagingPlatform
-
 import DownloadCsvWorker
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -24,7 +16,6 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.widget.Button
@@ -34,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -74,62 +64,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set tag for under age of consent. false means users are not under age
-        // of consent.
-        /*val params = ConsentRequestParameters
-            .Builder()
-            .setTagForUnderAgeOfConsent(false)
-            .build()*/
-
-        /*consentInformation = UserMessagingPlatform.getConsentInformation(this)
-        consentInformation.requestConsentInfoUpdate(
-            this,
-            params,
-            OnConsentInfoUpdateSuccessListener {
-                UserMessagingPlatform.loadAndShowConsentFormIfRequired(
-                    this@MainActivity,
-                    ConsentForm.OnConsentFormDismissedListener { loadAndShowError ->
-                        // Consent gathering failed.
-                        if (loadAndShowError != null) {
-                            Log.w(
-                                TAG, String.format(
-                                    "%s: %s",
-                                    loadAndShowError.errorCode,
-                                    loadAndShowError.message
-                                )
-                            )
-                        }
-
-                        // Consent has been gathered.
-                        if (consentInformation.canRequestAds()) {
-                            //initializeMobileAdsSdk()
-                        }
-                    }
-                )
-            },
-            ConsentInformation.OnConsentInfoUpdateFailureListener {
-                    requestConsentError ->
-                // Consent gathering failed.
-                Log.w(TAG, String.format("%s: %s",
-                    requestConsentError.errorCode,
-                    requestConsentError.message))
-            })*/
-
-        // Check if you can initialize the Google Mobile Ads SDK in parallel
-        // while checking for new consent information. Consent obtained in
-        // the previous session can be used to request ads.
-        //if (consentInformation.canRequestAds()) {
-            //initializeMobileAdsSdk()
-        //}
-        // Reset consent
-        // consentInformation.reset()
-
         setSupportActionBar(binding.appBarMain.toolbar)
 
         // Initialize the DatabaseHelper
         databaseHelper = DatabaseHelper(this)
-
-        //MobileAds.initialize(this)
 
         // Check if this is the first launch
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -252,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         val pendingIntent = PendingIntent.getBroadcast(this, 0, workerIntent,
             PendingIntent.FLAG_IMMUTABLE)
 
-        // Calculate the time to schedule the worker at 6:00 AM on every Friday
+        // Calculate the time to schedule the worker at 6:00 PM on every Friday
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = System.currentTimeMillis()
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY)
@@ -328,8 +266,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-        // Check if the SCHEDULE_EXACT_ALARM permission is granted
     private fun isExactAlarmPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -357,7 +293,7 @@ class MainActivity : AppCompatActivity() {
             val endIndex = startIndex + "Work Relax Quit".length
             // Apply a bold style to the specified text range
             builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-            // Set the styled text in your TextView
+            // Set the styled text
             notificationText.text = builder
 
             enableButton.setOnClickListener {
@@ -430,16 +366,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkDataInserted(): Boolean {
         val firstRowData = databaseHelper.getFirstRow()
         return firstRowData != null
-    }
-
-    private fun initializeMobileAdsSdk() {
-        if (isMobileAdsInitializeCalled.get()) {
-            return
-        }
-        isMobileAdsInitializeCalled.set(true)
-
-        // Initialize the Google Mobile Ads SDK.
-        //MobileAds.initialize(this)
     }
 
     private fun getItalianMonthName(month: Int): String {

@@ -56,7 +56,6 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Dropdown menu selected item
         dropdownMenu = binding.dataTypeSpinner
         val options = arrayOf("Ferie", "Permesso")
         val adapter = ArrayAdapter(requireContext(), androidR.layout.simple_spinner_item, options)
@@ -90,8 +89,6 @@ class ChartFragment : Fragment() {
             ) {
                 // Handle the item selection here
                 type = options[position]
-                // Now, selectedType contains the selected item ("Ferie" or "Permesso")
-                // val type = dropdownMenu.selectedItem as String
 
                 // Initialize database
                 databaseHelper = DatabaseHelper(requireContext())
@@ -190,14 +187,13 @@ class ChartFragment : Fragment() {
 
                 // Adding marker view
                 val mv = YourMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-                // set the marker to the chart
+                // Set the marker to the chart
                 lineChart.markerView = mv
 
-                // Initialize and configure the LineChart here
-                // You can set labels, axis, and other chart properties
+                // Initialize and configure the LineChart
                 lineChart.setTouchEnabled(true)
                 lineChart.setPinchZoom(true)
-                // enable scaling and dragging
+                // Enable scaling and dragging
                 lineChart.isDragEnabled = true
                 lineChart.setScaleEnabled(true)
                 lineChart.setDrawGridBackground(false)
@@ -207,7 +203,7 @@ class ChartFragment : Fragment() {
                 val xAxis = lineChart.xAxis
 
                 xAxis.valueFormatter = object : ValueFormatter() {
-                    private val dateFormat = SimpleDateFormat("MMM dd", Locale.US) // Adjust date format as needed
+                    private val dateFormat = SimpleDateFormat("MMM dd", Locale.US)
 
                     override fun getFormattedValue(value: Float): String {
                         // Convert the timestamp (X-axis value) back to a date string
@@ -221,7 +217,7 @@ class ChartFragment : Fragment() {
                 val lastDateMillis = realEntries.maxByOrNull { it.x }?.x?.toLong() ?: 0L
                 val intervalMillis = lastDateMillis - firstDateMillis
                 // Define a padding factor (percentage) for the left and right sides
-                val paddingFactor = 0.12 // 12% padding on both sides, adjust as needed
+                val paddingFactor = 0.12 // 12% padding on both sides
                 // Calculate the padding amount based on the interval
                 val paddingMillis = intervalMillis * paddingFactor
                 // Calculate axisMinimum and axisMaximum
@@ -232,30 +228,25 @@ class ChartFragment : Fragment() {
 
                 xAxis.setDrawAxisLine(true)
                 xAxis.setDrawGridLines(true)
-                // xAxis.textColor = Color.rgb(255, 192, 56)
                 xAxis.position = XAxis.XAxisPosition.BOTTOM
                 xAxis.textSize = 10f
                 xAxis.setCenterAxisLabels(true)
                 // Colors
                 xAxis.textColor = textColor
-                // xAxis.textSize = textSize
 
                 val yAxisLeft = lineChart.axisLeft
                 yAxisLeft.setDrawGridLines(true)
                 yAxisLeft.setDrawAxisLine(true)
-                yAxisLeft.textColor = textColor // Set the color you want
-                // leftAxis.textSize = textSize // Set the text size
+                yAxisLeft.textColor = textColor
 
                 val yAxisRight = lineChart.axisRight
                 yAxisRight.isEnabled = false
 
                 // Add legend if needed
                 val legend = lineChart.legend
-                legend.textColor = textColor // Set the color you want
-                // legend.textSize = textSize // Set the text size
+                legend.textColor = textColor
                 legend.isEnabled = true
 
-                // Example: Create a dummy dataset and display it
                 val dataSet = LineDataSet(realEntries, type)
                 dataSet.setDrawCircles(true)
                 dataSet.lineWidth = 2f
@@ -265,8 +256,7 @@ class ChartFragment : Fragment() {
                 dataSet.fillColor = accentColor
                 dataSet.highLightColor = Color.rgb(244, 117, 117)
                 dataSet.setDrawCircleHole(false)
-                dataSet.fillFormatter = IFillFormatter { dataSet, dataProvider -> // change the return value here to better understand the effect
-                    // return 0;
+                dataSet.fillFormatter = IFillFormatter { dataSet, dataProvider ->
                     lineChart.axisLeft.axisMinimum
                 }
 
@@ -277,13 +267,10 @@ class ChartFragment : Fragment() {
                 lineChart.data = lineData
                 lineChart.invalidate()
 
-                // You can perform any actions or updates based on the selected item here.
-                // For example, you can update your UI or perform some logic.
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {
                 // This method is called when nothing is selected.
-                // You can handle this case if needed.
             }
         }
 
@@ -318,7 +305,6 @@ class ChartFragment : Fragment() {
 
         val realEntries = mutableListOf<Entry>()
         val dataList = mutableListOf<List<Any>>()
-        // val startTimestamp = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse("2023-08-15")?.time ?: 0L
 
         if (type == "Ferie") {
             realEntries.add(Entry(startTimestamp, ferie, "inserted"))
@@ -389,14 +375,13 @@ class ChartFragment : Fragment() {
 
         // Adding marker view
         val mv = YourMarkerView(requireContext(), R.layout.custom_marker_view_layout)
-        // set the marker to the chart
+        // Set the marker to the chart
         lineChart.markerView = mv
 
-        // Initialize and configure the LineChart here
-        // You can set labels, axis, and other chart properties
+        // Initialize and configure the LineChart
         lineChart.setTouchEnabled(true)
         lineChart.setPinchZoom(true)
-        // enable scaling and dragging
+        // Enable scaling and dragging
         lineChart.isDragEnabled = true
         lineChart.setScaleEnabled(true)
         lineChart.setDrawGridBackground(false)
@@ -405,7 +390,7 @@ class ChartFragment : Fragment() {
 
         val xAxis = lineChart.xAxis
         xAxis.valueFormatter = object : ValueFormatter() {
-            private val dateFormat = SimpleDateFormat("MMM dd", Locale.US) // Adjust date format as needed
+            private val dateFormat = SimpleDateFormat("MMM dd", Locale.US)
 
             override fun getFormattedValue(value: Float): String {
                 // Convert the timestamp (X-axis value) back to a date string
@@ -419,7 +404,7 @@ class ChartFragment : Fragment() {
         val lastDateMillis = realEntries.maxByOrNull { it.x }?.x?.toLong() ?: 0L
         val intervalMillis = lastDateMillis - firstDateMillis
         // Define a padding factor (percentage) for the left and right sides
-        val paddingFactor = 0.12 // 12% padding on both sides, adjust as needed
+        val paddingFactor = 0.12 // 12% padding on both sides
         // Calculate the padding amount based on the interval
         val paddingMillis = intervalMillis * paddingFactor
         // Calculate axisMinimum and axisMaximum
@@ -430,31 +415,25 @@ class ChartFragment : Fragment() {
 
         xAxis.setDrawAxisLine(true)
         xAxis.setDrawGridLines(true)
-        // xAxis.textColor = Color.rgb(255, 192, 56)
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.textSize = 10f
         xAxis.setCenterAxisLabels(true)
-        // xAxis.position = XAxis.XAxisPosition.BOTTOM
         // Colors
         xAxis.textColor = textColor
-        // xAxis.textSize = textSize
 
         val yAxisLeft = lineChart.axisLeft
         yAxisLeft.setDrawGridLines(true)
         yAxisLeft.setDrawAxisLine(true)
-        yAxisLeft.textColor = textColor // Set the color you want
-        // leftAxis.textSize = textSize // Set the text size
+        yAxisLeft.textColor = textColor
 
         val yAxisRight = lineChart.axisRight
         yAxisRight.isEnabled = false
 
-        // Add legend if needed
+        // Add legend
         val legend = lineChart.legend
-        legend.textColor = textColor // Set the color you want
-        // legend.textSize = textSize // Set the text size
+        legend.textColor = textColor
         legend.isEnabled = true
 
-        // Example: Create a dummy dataset and display it
         val dataSet = LineDataSet(realEntries, type)
         dataSet.setDrawCircles(true)
         dataSet.lineWidth = 2f
@@ -464,7 +443,7 @@ class ChartFragment : Fragment() {
         dataSet.fillColor = accentColor
         dataSet.highLightColor = Color.rgb(244, 117, 117)
         dataSet.setDrawCircleHole(false)
-        dataSet.fillFormatter = IFillFormatter { dataSet, dataProvider -> // change the return value here to better understand the effect
+        dataSet.fillFormatter = IFillFormatter { dataSet, dataProvider ->
             // return 0;
             lineChart.axisLeft.axisMinimum
         }
@@ -495,7 +474,6 @@ class ChartFragment : Fragment() {
             if (e.data == "inserted") {
                 calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day
             }
-            //calendar.add(Calendar.DAY_OF_MONTH, 0) // Add one day
             dateValue!!.text = "Data: " + dateFormat.format(calendar.time)
             val df = DecimalFormat("#.##")
             hourValue!!.text = "Ore: " + df.format(e.y).toString()
@@ -506,7 +484,7 @@ class ChartFragment : Fragment() {
         private var mOffset: MPPointF? = null
         override fun getOffset(): MPPointF {
             if (mOffset == null) {
-                // center the marker horizontally and vertically
+                // Center the marker horizontally and vertically
                 mOffset = MPPointF(-(width / 2).toFloat(), -height.toFloat())
             }
             return mOffset as MPPointF

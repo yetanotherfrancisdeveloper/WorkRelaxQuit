@@ -11,8 +11,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-//import com.google.android.gms.ads.AdRequest
-//import com.google.android.gms.ads.MobileAds
 import com.francisdeveloper.workrelaxquit.databinding.FragmentCalcolatoreBinding
 import com.francisdeveloper.workrelaxquit.ui.gestore.DatabaseHelper
 import java.text.DecimalFormat
@@ -80,9 +78,6 @@ class CalculatorFragment : Fragment() {
             number1EditText.setText(df.format(availableFerie).toString())
         }
 
-        // Result display
-        //val resultTextView = binding.resultTextView
-
         // Set initial button state based on input validation
         binding.calculateButton.isEnabled = isInputValid()
 
@@ -90,10 +85,6 @@ class CalculatorFragment : Fragment() {
         binding.ferie.addTextChangedListener(textWatcher)
         binding.toUseFerie.addTextChangedListener(textWatcher)
         binding.holidayFerie.addTextChangedListener(textWatcher)
-
-        /*val adView = binding.adView
-        MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())*/
 
         binding.calculateButton.setOnClickListener {
             val ferieAvailable = number1EditText.text.toString().toDouble()

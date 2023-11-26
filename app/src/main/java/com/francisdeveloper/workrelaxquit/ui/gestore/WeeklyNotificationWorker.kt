@@ -54,7 +54,6 @@ class WeeklyNotificationWorker(context: Context, workerParams: WorkerParameters)
         // Show the notification
         val notificationManager = NotificationManagerCompat.from(applicationContext)
         notificationManager.notify(notificationId, notification)
-        // Log.d("NotificationIssue", "Notification sent")
 
         return Result.success()
     }

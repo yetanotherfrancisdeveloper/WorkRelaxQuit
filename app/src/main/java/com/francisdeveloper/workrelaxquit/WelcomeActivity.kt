@@ -26,15 +26,6 @@ class WelcomeActivity : AppCompatActivity() {
                 finish()
             }
         } else {
-            /*setContentView(R.layout.welcome_splash)
-            val startAppButton = findViewById<Button>(R.id.startAppButton)
-            startAppButton.setOnClickListener {
-                // Handle the button click action here, e.g., start the main activity
-                val mainIntent = Intent(this, MainActivity::class.java)
-                startActivity(mainIntent)
-                finish()
-            }*/
-
             // If not the first launch, directly navigate to the main activity
             sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
             val intent = Intent(this, MainActivity::class.java)

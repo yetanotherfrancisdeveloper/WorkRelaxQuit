@@ -200,7 +200,7 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
         val fileInputStream = FileInputStream(filePath)
         val workbook = HSSFWorkbook(fileInputStream)
 
-        val sheet = workbook.getSheetAt(0) // Assuming you want to read the first sheet
+        val sheet = workbook.getSheetAt(0)
         val row = sheet.getRow(rowIndex)
         val cell = row?.getCell(columnIndex)
 
@@ -388,12 +388,12 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
             } else {
                 tfrQuota = tfr
             }
-            // var tfrQuota = tfr - (salary * 0.005) // + thirteenQuotas
+
             if (tfrQuota < 0.0) {
                 tfrQuota += (salary * 0.005)
             }
             val tfrQuotaPreCurrentYear = if (tfrPreCurrentYear > 0.0) {
-                tfrPreCurrentYear - (salary * 0.005) // + thirteenQuotas
+                tfrPreCurrentYear - (salary * 0.005)
             } else {
                 0.0
             }
@@ -501,8 +501,8 @@ class FragmentCalcoloTfrBinding : Fragment(), DatePickerDialog.OnDateSetListener
             calendar.set(year, month - 1, day)
             val currentDate = calendar.time
 
-            // Exclude weekends and public holidays (you need to add the list of public holidays here)
-            if (isWorkingDay(currentDate)) {  // && !isPublicHoliday(currentDate)
+            // Exclude weekends and public holidays
+            if (isWorkingDay(currentDate)) {
                 workingDays++
             }
         }

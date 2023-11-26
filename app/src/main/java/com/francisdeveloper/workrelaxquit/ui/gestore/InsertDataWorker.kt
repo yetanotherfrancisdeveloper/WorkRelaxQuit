@@ -36,7 +36,6 @@ class InsertDataWorker(context: Context, params: WorkerParameters) :
             if (firstRowData != null) {
                 val giorniFerie = firstRowData.giorniFerie
                 val orePermessi = firstRowData.permessiHours
-                //Log.d("AccData", "Permessi: $orePermessi, Ferie: $giorniFerie")
                 val accFerie = ((giorniFerie.toDouble() * 8) / 12).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
                 val accPermessi = (orePermessi / 12).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
 
@@ -88,6 +87,5 @@ class InsertDataWorker(context: Context, params: WorkerParameters) :
         // Show the notification
         val notificationManager = NotificationManagerCompat.from(applicationContext)
         notificationManager.notify(notificationId, notificationBuilder.build())
-        // Log.d("NotificationIssue", "Monthly sent")
     }
 }

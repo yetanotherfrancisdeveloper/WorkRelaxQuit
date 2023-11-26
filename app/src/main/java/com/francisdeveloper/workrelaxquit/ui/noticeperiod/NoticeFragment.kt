@@ -15,8 +15,6 @@ import androidx.fragment.app.Fragment
 import com.francisdeveloper.workrelaxquit.databinding.FragmentNoticeBinding
 import android.widget.EditText
 import android.widget.Spinner
-//import com.google.android.gms.ads.AdRequest
-//import com.google.android.gms.ads.MobileAds
 import com.francisdeveloper.workrelaxquit.ui.gestore.getCurrentDate
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -95,10 +93,6 @@ class NoticeFragment : Fragment(), DatePickerDialog.OnDateSetListener {
         infoIcon.setOnClickListener {
             showInfoDialog()
         }
-
-        /*val adView = binding.adView
-        MobileAds.initialize(requireContext())
-        adView.loadAd(AdRequest.Builder().build())*/
 
         // Set initial button state based on input validation
         binding.calculateButton.isEnabled = isInputValid()
