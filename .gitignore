@@ -13,3 +13,22 @@
 .externalNativeBuild
 .cxx
 local.properties
+release
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# built native files
+*.o
+*.so
+
+# generated files
+bin/
+gen/
